@@ -1,0 +1,39 @@
+info:
+  name: Register
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{base-url}}/api/auth/register/"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "test@email.com",
+        "password": "test123",
+        "display_name": "test"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+tests: |
+  test("status is 201", function() {
+    expect(res.status).to.equal(201);
+  });
+
+  test("returns access token", function() {
+    expect(res.body.access).to.be.a("string").and.not.empty;
+  });
+
+  test("returns refresh token", function() {
+    expect(res.body.refresh).to.be.a("string").and.not.empty;
+  });
+
+  bru.setEnvVar("accessToken", res.body.access);
+  bru.setEnvVar("refreshToken", res.body.refresh);

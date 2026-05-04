@@ -1,0 +1,38 @@
+info:
+  name: Login
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{base-url}}/api/auth/login/"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "test@email.com",
+        "password": "test123"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+tests: |
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns access token", function() {
+    expect(res.body.access).to.be.a("string").and.not.empty;
+  });
+
+  test("returns refresh token", function() {
+    expect(res.body.refresh).to.be.a("string").and.not.empty;
+  });
+
+  bru.setEnvVar("accessToken", res.body.access);
+  bru.setEnvVar("refreshToken", res.body.refresh);

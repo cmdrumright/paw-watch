@@ -1,5 +1,6 @@
 from django.urls import path
+from api.views import register
 
 urlpatterns = [
-    # auth endpoints added in TICKET-003 and TICKET-004
+    path("register/", register, name="auth-register"),
 ]
