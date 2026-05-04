@@ -1,0 +1,83 @@
+Table User {
+  id integer [pk, increment]
+  email varchar [unique, not null]
+  password_hash varchar [not null]
+  display_name varchar [not null]
+  avatar_url varchar
+  role varchar [not null, note: 'member | shelter | admin']
+  created_at timestamp [not null, default: `now()`]
+}
+
+Table Status {
+  id integer [pk, increment]
+  name varchar [unique, not null, note: 'active | sighting_reported | reunited | closed']
+}
+
+Table Post {
+  id integer [pk, increment]
+  owner_id integer [not null, ref: > User.id]
+  type varchar [not null, note: 'lost | found']
+  status_id integer [not null, ref: > Status.id]
+  pet_name varchar [not null]
+  species varchar [not null]
+  breed varchar
+  color varchar
+  description text
+  incident_date date [not null]
+  location_lat float [not null]
+  location_lng float [not null]
+  location_label varchar
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+}
+
+Table Comment {
+  id integer [pk, increment]
+  post_id integer [not null, ref: > Post.id]
+  author_id integer [not null, ref: > User.id]
+  body text [not null]
+  sighting_lat float
+  sighting_lng float
+  is_confirmed_sighting boolean [not null, default: false]
+  created_at timestamp [not null, default: `now()`]
+}
+
+Table Photo {
+  id integer [pk, increment]
+  file_path varchar [not null]
+  order integer [not null, default: 0]
+  uploaded_at timestamp [not null, default: `now()`]
+}
+
+Table PostPhoto {
+  post_id integer [not null, ref: > Post.id]
+  photo_id integer [not null, ref: > Photo.id]
+
+  indexes {
+    (post_id, photo_id) [pk]
+  }
+}
+
+Table CommentPhoto {
+  comment_id integer [not null, ref: > Comment.id]
+  photo_id integer [not null, ref: > Photo.id]
+
+  indexes {
+    (comment_id, photo_id) [pk]
+  }
+}
+
+Table Label {
+  id integer [pk, increment]
+  name varchar [unique, not null]
+  created_at timestamp [not null, default: `now()`]
+}
+
+Table PostLabel {
+  post_id integer [not null, ref: > Post.id]
+  label_id integer [not null, ref: > Label.id]
+
+  indexes {
+    (post_id, label_id) [pk]
+  }
+}
