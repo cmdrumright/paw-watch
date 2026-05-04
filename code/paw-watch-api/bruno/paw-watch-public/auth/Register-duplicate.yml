@@ -1,0 +1,32 @@
+info:
+  name: Register - duplicate email
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{base-url}}/api/auth/register/"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "test@email.com",
+        "password": "test123",
+        "display_name": "test"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+tests: |
+  test("status is 400", function() {
+    expect(res.status).to.equal(400);
+  });
+
+  test("returns duplicate email error", function() {
+    expect(res.body.detail).to.equal("An account with this email already exists.");
+  });

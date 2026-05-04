@@ -1,7 +1,7 @@
 ## Workspaces
 
 - /planning — Specs, architecture, decisions
-- /src — Application code
+- /code — Application code
 - /docs — Documentation
 - /ops — Deployment and operations
 
@@ -10,7 +10,7 @@
 | Task            | Go to     | Read       | Skills              |
 | --------------- | --------- | ---------- | ------------------- |
 | Spec a feature  | /planning | CONTEXT.md | —                   |
-| Write code      | /src      | CONTEXT.md | testing-skill       |
+| Write code      | /code     | CONTEXT.md | testing-skill       |
 | Write docs      | /docs     | CONTEXT.md | doc-authoring-skill |
 | Deploy or debug | /ops      | CONTEXT.md | —                   |
 
