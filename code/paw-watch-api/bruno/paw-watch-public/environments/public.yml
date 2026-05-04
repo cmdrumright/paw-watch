@@ -1,8 +1,0 @@
-name: public
-variables:
-  - name: base-url
-    value: http://localhost:8000
-  - name: accessToken
-    value: ""
-  - name: refreshToken
-    value: ""

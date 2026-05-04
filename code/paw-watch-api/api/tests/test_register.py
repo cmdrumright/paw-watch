@@ -9,6 +9,7 @@ REGISTER_URL = "/api/auth/register/"
 
 class RegisterTests(APITestCase):
     def test_register_creates_user(self):
+        """A valid registration request creates a new User record in the database."""
         res = self.client.post(REGISTER_URL, {
             "email": "jane@example.com",
             "password": "securepass123",
@@ -19,6 +20,7 @@ class RegisterTests(APITestCase):
         self.assertTrue(User.objects.filter(email="jane@example.com").exists())
 
     def test_register_returns_jwt_tokens(self):
+        """A successful registration returns non-empty access and refresh JWT tokens."""
         res = self.client.post(REGISTER_URL, {
             "email": "jane@example.com",
             "password": "securepass123",
@@ -32,6 +34,7 @@ class RegisterTests(APITestCase):
         self.assertTrue(len(res.data["refresh"]) > 0)
 
     def test_register_duplicate_email_returns_400(self):
+        """Registering with an email that already exists returns 400 and does not create a second user."""
         User.objects.create_user(
             username="jane@example.com",
             email="jane@example.com",
@@ -48,6 +51,7 @@ class RegisterTests(APITestCase):
         self.assertEqual(User.objects.filter(email="jane@example.com").count(), 1)
 
     def test_register_missing_fields_returns_400(self):
+        """A registration request missing required fields returns 400 and does not create a user."""
         res = self.client.post(REGISTER_URL, {
             "email": "jane@example.com",
         }, format="json")
