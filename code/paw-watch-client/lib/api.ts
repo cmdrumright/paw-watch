@@ -12,7 +12,12 @@ function authHeaders(): HeadersInit {
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (res.status === 401) {
-    if (typeof window !== "undefined") window.location.href = "/login"
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token")
+      localStorage.removeItem("refreshToken")
+      document.cookie = "auth_session=; path=/; SameSite=Lax; Max-Age=0"
+      window.location.href = "/login"
+    }
     throw new Error("401")
   }
   if (!res.ok) {
