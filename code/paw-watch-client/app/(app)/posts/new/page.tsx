@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
 import PhotoUpload from "@/components/PhotoUpload"
+import LabelPicker from "@/components/LabelPicker"
 import type { PickedLocation } from "@/components/LocationPickerMap"
 import { apiPostForm } from "@/lib/api"
 
@@ -30,6 +31,7 @@ export interface PostFormState {
   description: string
   incident_date: string
   photos: File[]
+  label_ids: number[]
   location_lat: number | null
   location_lng: number | null
   location_label: string
@@ -44,6 +46,7 @@ const INITIAL: PostFormState = {
   description: "",
   incident_date: new Date().toISOString().slice(0, 10),
   photos: [],
+  label_ids: [],
   location_lat: null,
   location_lng: null,
   location_label: "",
@@ -107,6 +110,7 @@ export default function NewPostPage() {
     body.append("location_lng", String(form.location_lng))
     body.append("location_label", form.location_label)
     form.photos.forEach((f) => body.append("photos", f))
+    form.label_ids.forEach((id) => body.append("label_ids", String(id)))
 
     setSubmitting(true)
     try {
@@ -252,6 +256,17 @@ export default function NewPostPage() {
               Photos <span className="text-gray-400 font-normal">(up to 4, 5 MB each)</span>
             </span>
             <PhotoUpload onChange={(files) => set("photos", files)} />
+          </div>
+
+          {/* Labels */}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium text-gray-700">
+              Labels <span className="text-gray-400 font-normal">(select all that apply)</span>
+            </span>
+            <LabelPicker
+              selected={form.label_ids}
+              onChange={(ids) => set("label_ids", ids)}
+            />
           </div>
 
           {/* Location picker */}
