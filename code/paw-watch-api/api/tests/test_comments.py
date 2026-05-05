@@ -178,3 +178,56 @@ class CommentDeleteTest(APITestCase):
         self.client.force_authenticate(user=self.author)
         res = self.client.delete("/api/comments/9999")
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class CommentConfirmSightingTest(APITestCase):
+    def setUp(self):
+        self.owner = _make_user("owner@example.com", "Owner")
+        self.other = _make_user("other@example.com", "Other")
+        self.post = _make_post(self.owner)
+        self.comment_with_sighting = Comment.objects.create(
+            post=self.post,
+            author=self.other,
+            body="I saw it!",
+            sighting_lat=36.52,
+            sighting_lng=-87.36,
+        )
+        self.comment_no_sighting = Comment.objects.create(
+            post=self.post,
+            author=self.other,
+            body="Just a comment, no location.",
+        )
+
+    def _url(self, comment):
+        return f"/api/comments/{comment.pk}/confirm"
+
+    def test_owner_can_confirm_sighting(self):
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.patch(self._url(self.comment_with_sighting), format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.data["is_confirmed_sighting"])
+
+    def test_confirms_sets_post_status_to_sighting_reported(self):
+        self.client.force_authenticate(user=self.owner)
+        self.client.patch(self._url(self.comment_with_sighting), format="json")
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.status, "sighting_reported")
+
+    def test_non_owner_gets_403(self):
+        self.client.force_authenticate(user=self.other)
+        res = self.client.patch(self._url(self.comment_with_sighting), format="json")
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_comment_without_sighting_gets_400(self):
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.patch(self._url(self.comment_no_sighting), format="json")
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_unauthenticated_gets_401(self):
+        res = self.client.patch(self._url(self.comment_with_sighting), format="json")
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_unknown_comment_gets_404(self):
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.patch("/api/comments/9999/confirm", format="json")
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)

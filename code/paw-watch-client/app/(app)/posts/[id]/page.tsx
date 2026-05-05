@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
-import { apiGet, apiDelete } from "@/lib/api"
+import { apiGet, apiDelete, apiPatch } from "@/lib/api"
 import { getUserId } from "@/lib/auth"
 import dynamic from "next/dynamic"
 import CommentForm from "@/components/CommentForm"
@@ -56,13 +56,15 @@ function ConfirmModal({
 }
 
 function CommentThread({
-  postId,
   comments,
+  isPostOwner,
   onDelete,
+  onConfirm,
 }: {
-  postId: number
   comments: Comment[]
+  isPostOwner: boolean
   onDelete: (id: number) => void
+  onConfirm: (id: number) => void
 }) {
   const currentUserId = getUserId()
 
@@ -77,7 +79,14 @@ function CommentThread({
 
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-sm font-medium text-gray-800">{c.author.display_name}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm font-medium text-gray-800">{c.author.display_name}</span>
+                {c.is_confirmed_sighting && (
+                  <span className="text-xs bg-green-100 text-green-700 border border-green-200 rounded-full px-1.5 py-0.5 font-medium">
+                    ✓ Confirmed
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-2 shrink-0">
                 <span className="text-xs text-gray-400">
                   {new Date(c.created_at).toLocaleDateString("en-US", {
@@ -114,15 +123,23 @@ function CommentThread({
               </div>
             )}
 
-            {/* Sighting location */}
+            {/* Sighting location + confirm button */}
             {c.sighting_lat != null && (
-              <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                <span>📍</span>
-                <span>
-                  {c.is_confirmed_sighting ? "✓ Confirmed · " : ""}
-                  {c.sighting_lat.toFixed(4)}, {c.sighting_lng?.toFixed(4)}
-                </span>
-              </p>
+              <div className="flex items-center gap-3 mt-1">
+                <p className="text-xs text-gray-400 flex items-center gap-1">
+                  <span>📍</span>
+                  <span>{c.sighting_lat.toFixed(4)}, {c.sighting_lng?.toFixed(4)}</span>
+                </p>
+                {isPostOwner && !c.is_confirmed_sighting && (
+                  <button
+                    type="button"
+                    onClick={() => onConfirm(c.id)}
+                    className="text-xs text-green-600 hover:text-green-800 font-medium transition-colors"
+                  >
+                    ✓ Confirm Sighting
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -139,6 +156,7 @@ export default function PostDetailPage() {
   const [notFound, setNotFound] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
 
   useEffect(() => {
     apiGet<PostDetail>(`posts/${id}`)
@@ -157,6 +175,29 @@ export default function PostDetailPage() {
     } catch {
       setDeleting(false)
       setShowConfirm(false)
+    }
+  }
+
+  async function handleStatusUpdate(newStatus: string) {
+    if (!post) return
+    setUpdatingStatus(true)
+    try {
+      const updated = await apiPatch<PostDetail>(`posts/${id}/status`, { status: newStatus })
+      setPost(updated)
+    } catch {
+      // silently ignore
+    } finally {
+      setUpdatingStatus(false)
+    }
+  }
+
+  async function handleConfirmSighting(commentId: number) {
+    try {
+      const updated = await apiPatch<Comment>(`comments/${commentId}/confirm`, {})
+      setComments((prev) => prev.map((c) => (c.id === commentId ? updated : c)))
+      setPost((prev) => prev ? { ...prev, status: "sighting_reported" } : prev)
+    } catch {
+      // silently ignore
     }
   }
 
@@ -221,6 +262,13 @@ export default function PostDetailPage() {
             ← Back to Map
           </Link>
 
+          {/* Reunited banner */}
+          {post.status === "reunited" && (
+            <div className="w-full bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-5 text-center text-sm font-semibold text-green-800">
+              🎉 {post.pet_name} has been reunited with their family!
+            </div>
+          )}
+
           {/* Type + status + date */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -229,7 +277,7 @@ export default function PostDetailPage() {
               >
                 {post.type}
               </span>
-              <span className="text-xs text-gray-500 font-medium capitalize">{post.status}</span>
+              <span className="text-xs text-gray-500 font-medium capitalize">{post.status.replace(/_/g, " ")}</span>
             </div>
             <span className="text-xs text-gray-400">Posted {createdDate}</span>
           </div>
@@ -294,7 +342,7 @@ export default function PostDetailPage() {
           </div>
 
           {/* Posted by + owner actions */}
-          <div className="flex items-center justify-between border-t border-gray-100 pt-4 mb-6">
+          <div className="flex items-center justify-between border-t border-gray-100 pt-4 mb-3">
             <span className="text-sm text-gray-500">
               Posted by <span className="font-medium text-gray-700">{post.owner.display_name}</span>
             </span>
@@ -317,6 +365,42 @@ export default function PostDetailPage() {
             )}
           </div>
 
+          {/* Status action buttons (owner only) */}
+          {isOwner && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              {post.status !== "reunited" && (
+                <button
+                  type="button"
+                  onClick={() => handleStatusUpdate("reunited")}
+                  disabled={updatingStatus}
+                  className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
+                >
+                  Mark as Reunited
+                </button>
+              )}
+              {post.status !== "closed" && post.status !== "reunited" && (
+                <button
+                  type="button"
+                  onClick={() => handleStatusUpdate("closed")}
+                  disabled={updatingStatus}
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                >
+                  Close Post
+                </button>
+              )}
+              {(post.status === "closed" || post.status === "reunited") && (
+                <button
+                  type="button"
+                  onClick={() => handleStatusUpdate("active")}
+                  disabled={updatingStatus}
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                >
+                  Reopen
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Comments */}
           <div className="border-t border-gray-100 pt-4">
             <p className="text-sm font-semibold text-gray-700 mb-4">
@@ -327,9 +411,10 @@ export default function PostDetailPage() {
             ) : (
               <div className="mb-6">
                 <CommentThread
-                  postId={post.id}
                   comments={comments}
+                  isPostOwner={isOwner}
                   onDelete={handleDeleteComment}
+                  onConfirm={handleConfirmSighting}
                 />
               </div>
             )}

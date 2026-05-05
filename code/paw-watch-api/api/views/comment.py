@@ -118,3 +118,37 @@ class CommentViewSet(ViewSet):
 
         comment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def confirm_sighting(self, request, pk=None):
+        """Mark a comment as a confirmed sighting. Post owner only.
+
+        Sets is_confirmed_sighting=True on the comment and updates the post
+        status to sighting_reported. Returns the updated comment.
+        """
+        try:
+            comment = Comment.objects.select_related("author", "post__owner").prefetch_related(
+                "comment_photos__photo"
+            ).get(pk=pk)
+        except Comment.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if comment.sighting_lat is None:
+            return Response(
+                {"detail": "This comment has no sighting location."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if comment.post.owner != request.user:
+            return Response(
+                {"detail": "Only the post owner can confirm sightings."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        comment.is_confirmed_sighting = True
+        comment.save()
+
+        post = comment.post
+        post.status = Post.Status.SIGHTING_REPORTED
+        post.save()
+
+        return Response(CommentSerializer(comment, context={"request": request}).data)
