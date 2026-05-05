@@ -67,6 +67,15 @@ export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
   return handleResponse<T>(res)
 }
 
+export async function apiPatchForm<T>(path: string, body: FormData): Promise<T> {
+  const res = await fetch(`${API_URL}/${path}`, {
+    method: "PATCH",
+    headers: { ...authHeaders() },
+    body,
+  })
+  return handleResponse<T>(res)
+}
+
 export async function apiDelete(path: string): Promise<void> {
   const res = await fetch(`${API_URL}/${path}`, {
     method: "DELETE",

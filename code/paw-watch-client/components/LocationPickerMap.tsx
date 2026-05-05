@@ -58,10 +58,12 @@ export interface PickedLocation {
 
 interface Props {
   onPick: (location: PickedLocation) => void
+  initialPin?: [number, number]
 }
 
-export default function LocationPickerMap({ onPick }: Props) {
-  const [pin, setPin] = useState<[number, number] | null>(null)
+export default function LocationPickerMap({ onPick, initialPin }: Props) {
+  const [pin, setPin] = useState<[number, number] | null>(initialPin ?? null)
+  const center = initialPin ?? CLARKSVILLE
 
   async function handleClick(lat: number, lng: number) {
     setPin([lat, lng])
@@ -71,7 +73,7 @@ export default function LocationPickerMap({ onPick }: Props) {
 
   return (
     <MapContainer
-      center={CLARKSVILLE}
+      center={center}
       zoom={12}
       className="h-full w-full cursor-crosshair"
       scrollWheelZoom
