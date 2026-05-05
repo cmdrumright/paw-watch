@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import { apiGet, apiDelete } from "@/lib/api"
 import { getUserId } from "@/lib/auth"
-import type { PostDetail } from "@/lib/types"
+import type { PostDetail, Comment } from "@/lib/types"
 
 function ConfirmModal({
   onConfirm,
@@ -44,10 +44,83 @@ function ConfirmModal({
   )
 }
 
+function CommentThread({
+  postId,
+  comments,
+  onDelete,
+}: {
+  postId: number
+  comments: Comment[]
+  onDelete: (id: number) => void
+}) {
+  const currentUserId = getUserId()
+
+  return (
+    <div className="flex flex-col gap-4">
+      {comments.map((c) => (
+        <div key={c.id} className="flex gap-3">
+          {/* Avatar */}
+          <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0 flex items-center justify-center text-xs font-semibold text-gray-500 uppercase">
+            {c.author.display_name.charAt(0)}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-sm font-medium text-gray-800">{c.author.display_name}</span>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs text-gray-400">
+                  {new Date(c.created_at).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+                {currentUserId === c.author.id && (
+                  <button
+                    type="button"
+                    onClick={() => onDelete(c.id)}
+                    className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                    aria-label="Delete comment"
+                  >
+                    🗑
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-700 mt-0.5 whitespace-pre-wrap">{c.body}</p>
+
+            {/* Photos */}
+            {c.photos.length > 0 && (
+              <div className="flex gap-2 mt-2">
+                {c.photos.map((p) => (
+                  <img
+                    key={p.id}
+                    src={p.url}
+                    alt="comment photo"
+                    className="h-20 w-20 object-cover rounded-lg"
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Sighting location */}
+            {c.sighting_lat != null && (
+              <p className="text-xs text-gray-400 mt-1">
+                📍 {c.sighting_lat.toFixed(5)}, {c.sighting_lng?.toFixed(5)}
+              </p>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function PostDetailPage() {
   const router = useRouter()
   const { id } = useParams<{ id: string }>()
   const [post, setPost] = useState<PostDetail | null>(null)
+  const [comments, setComments] = useState<Comment[]>([])
   const [notFound, setNotFound] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -56,9 +129,12 @@ export default function PostDetailPage() {
     apiGet<PostDetail>(`posts/${id}`)
       .then(setPost)
       .catch(() => setNotFound(true))
+    apiGet<Comment[]>(`posts/${id}/comments`)
+      .then(setComments)
+      .catch(() => {})
   }, [id])
 
-  async function handleDelete() {
+  async function handleDeletePost() {
     setDeleting(true)
     try {
       await apiDelete(`posts/${id}`)
@@ -66,6 +142,15 @@ export default function PostDetailPage() {
     } catch {
       setDeleting(false)
       setShowConfirm(false)
+    }
+  }
+
+  async function handleDeleteComment(commentId: number) {
+    try {
+      await apiDelete(`comments/${commentId}`)
+      setComments((prev) => prev.filter((c) => c.id !== commentId))
+    } catch {
+      // silently ignore — comment already gone or permission denied
     }
   }
 
@@ -105,7 +190,7 @@ export default function PostDetailPage() {
     <>
       {showConfirm && (
         <ConfirmModal
-          onConfirm={handleDelete}
+          onConfirm={handleDeletePost}
           onCancel={() => setShowConfirm(false)}
           deleting={deleting}
         />
@@ -206,11 +291,20 @@ export default function PostDetailPage() {
             )}
           </div>
 
-          {/* Comments placeholder — filled in future tickets */}
+          {/* Comments */}
           <div className="border-t border-gray-100 pt-4">
-            <p className="text-sm font-semibold text-gray-700 mb-2">
-              Comments ({post.comment_count})
+            <p className="text-sm font-semibold text-gray-700 mb-4">
+              Comments ({comments.length})
             </p>
+            {comments.length === 0 ? (
+              <p className="text-sm text-gray-400">No comments yet.</p>
+            ) : (
+              <CommentThread
+                postId={post.id}
+                comments={comments}
+                onDelete={handleDeleteComment}
+              />
+            )}
           </div>
         </div>
       </div>
