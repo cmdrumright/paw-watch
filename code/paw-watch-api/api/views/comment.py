@@ -100,3 +100,21 @@ class CommentViewSet(ViewSet):
             CommentSerializer(comment_with_related, context={"request": request}).data,
             status=status.HTTP_201_CREATED,
         )
+
+    def destroy(self, request, pk=None):
+        """Delete a comment. Author or admin only. Returns 204 on success."""
+        try:
+            comment = Comment.objects.select_related("author").get(pk=pk)
+        except Comment.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        is_author = comment.author == request.user
+        is_admin = request.user.role == request.user.Role.ADMIN
+        if not (is_author or is_admin):
+            return Response(
+                {"detail": "You do not have permission to delete this comment."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

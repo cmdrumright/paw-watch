@@ -137,3 +137,44 @@ class CommentCreateTest(APITestCase):
         self.client.force_authenticate(user=None)
         res = self.client.post(self.url, {"body": "Hi"}, format="multipart")
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class CommentDeleteTest(APITestCase):
+    def setUp(self):
+        self.author = _make_user("author@example.com", "Author")
+        self.other = _make_user("other@example.com", "Other")
+        self.admin = _make_user("admin@example.com", "Admin")
+        self.admin.role = self.admin.Role.ADMIN
+        self.admin.save()
+        self.post = _make_post(self.author)
+        self.comment = Comment.objects.create(
+            post=self.post, author=self.author, body="Delete me."
+        )
+        self.url = f"/api/comments/{self.comment.pk}"
+
+    def test_author_can_delete(self):
+        self.client.force_authenticate(user=self.author)
+        res = self.client.delete(self.url)
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Comment.objects.count(), 0)
+
+    def test_admin_can_delete(self):
+        self.client.force_authenticate(user=self.admin)
+        res = self.client.delete(self.url)
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Comment.objects.count(), 0)
+
+    def test_other_user_gets_403(self):
+        self.client.force_authenticate(user=self.other)
+        res = self.client.delete(self.url)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(Comment.objects.count(), 1)
+
+    def test_unauthenticated_gets_401(self):
+        res = self.client.delete(self.url)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_unknown_comment_gets_404(self):
+        self.client.force_authenticate(user=self.author)
+        res = self.client.delete("/api/comments/9999")
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
