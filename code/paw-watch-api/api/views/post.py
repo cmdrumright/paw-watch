@@ -4,7 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from api.models import Post, Photo, PostPhoto
+from api.models import Post, Photo, PostPhoto, Label, PostLabel
+from api.views.label import LabelSerializer
 
 
 class PostListSerializer(serializers.ModelSerializer):
@@ -77,6 +78,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
     owner = OwnerSerializer(read_only=True)
     photos = serializers.SerializerMethodField()
+    labels = serializers.SerializerMethodField()
     comment_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -98,6 +100,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "updated_at",
             "owner",
             "photos",
+            "labels",
             "comment_count",
         ]
 
@@ -105,6 +108,11 @@ class PostDetailSerializer(serializers.ModelSerializer):
         """Return all photos attached to this post in display order."""
         photos = [pp.photo for pp in obj.post_photos.select_related("photo").all()]
         return PhotoSerializer(photos, many=True, context=self.context).data
+
+    def get_labels(self, obj):
+        """Return all labels attached to this post."""
+        labels = [pl.label for pl in obj.post_labels.select_related("label").all()]
+        return LabelSerializer(labels, many=True).data
 
     def get_comment_count(self, obj):
         """Return the number of comments on this post."""
@@ -132,11 +140,24 @@ class PostCreateSerializer(serializers.Serializer):
         required=False,
         allow_empty=True,
     )
+    label_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        required=False,
+        allow_empty=True,
+    )
 
     def validate_photos(self, value):
         """Reject submissions with more than 4 photos."""
         if len(value) > 4:
             raise serializers.ValidationError("A post may have at most 4 photos.")
+        return value
+
+    def validate_label_ids(self, value):
+        """Reject label IDs that do not exist."""
+        existing = set(Label.objects.filter(pk__in=value).values_list("pk", flat=True))
+        missing = set(value) - existing
+        if missing:
+            raise serializers.ValidationError(f"Label IDs not found: {sorted(missing)}")
         return value
 
 
@@ -154,6 +175,19 @@ class PostUpdateSerializer(serializers.Serializer):
     location_lat = serializers.FloatField(required=False)
     location_lng = serializers.FloatField(required=False)
     location_label = serializers.CharField(max_length=255, required=False)
+    label_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        required=False,
+        allow_empty=True,
+    )
+
+    def validate_label_ids(self, value):
+        """Reject label IDs that do not exist."""
+        existing = set(Label.objects.filter(pk__in=value).values_list("pk", flat=True))
+        missing = set(value) - existing
+        if missing:
+            raise serializers.ValidationError(f"Label IDs not found: {sorted(missing)}")
+        return value
 
 
 class PostViewSet(ViewSet):
@@ -179,6 +213,7 @@ class PostViewSet(ViewSet):
 
         validated = serializer.validated_data
         photo_files = validated.pop("photos", [])
+        label_ids = validated.pop("label_ids", [])
 
         post = Post.objects.create(owner=request.user, **validated)
 
@@ -186,9 +221,11 @@ class PostViewSet(ViewSet):
             photo = Photo.objects.create(file_path=file, order=order)
             PostPhoto.objects.create(post=post, photo=photo)
 
-        post.refresh_from_db()
+        for label_id in label_ids:
+            PostLabel.objects.create(post=post, label_id=label_id)
+
         post_with_related = Post.objects.select_related("owner").prefetch_related(
-            "post_photos__photo"
+            "post_photos__photo", "post_labels__label"
         ).get(pk=post.pk)
         return Response(
             PostDetailSerializer(post_with_related, context={"request": request}).data,
@@ -231,12 +268,20 @@ class PostViewSet(ViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        for field, value in serializer.validated_data.items():
+        validated = serializer.validated_data
+        label_ids = validated.pop("label_ids", None)
+
+        for field, value in validated.items():
             setattr(post, field, value)
         post.save()
 
+        if label_ids is not None:
+            post.post_labels.all().delete()
+            for label_id in label_ids:
+                PostLabel.objects.create(post=post, label_id=label_id)
+
         post_with_related = Post.objects.select_related("owner").prefetch_related(
-            "post_photos__photo"
+            "post_photos__photo", "post_labels__label"
         ).get(pk=post.pk)
         return Response(PostDetailSerializer(post_with_related, context={"request": request}).data)
 
@@ -266,7 +311,7 @@ class PostViewSet(ViewSet):
         """
         try:
             post = Post.objects.select_related("owner").prefetch_related(
-                "post_photos__photo"
+                "post_photos__photo", "post_labels__label"
             ).get(pk=pk)
         except Post.DoesNotExist:
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
