@@ -3,7 +3,11 @@ from django.db import models
 
 
 class User(AbstractUser):
+    """Custom user model extending AbstractUser with display name, avatar, and role."""
+
     class Role(models.TextChoices):
+        """Valid roles a user account can hold."""
+
         MEMBER = "member", "Member"
         SHELTER = "shelter", "Shelter"
         ADMIN = "admin", "Admin"

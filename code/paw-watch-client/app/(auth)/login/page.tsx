@@ -1,35 +1,35 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { loginRequest, setTokens } from "@/lib/auth"
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { loginRequest, setTokens } from "@/lib/auth";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      const { access, refresh } = await loginRequest(email, password)
-      setTokens(access, refresh)
-      router.push("/map")
+      const { access, refresh } = await loginRequest(email, password);
+      setTokens(access, refresh);
+      router.push("/map");
     } catch (err: unknown) {
-      const status = err instanceof Error ? err.message : ""
+      const status = err instanceof Error ? err.message : "";
       if (status === "401") {
-        setError("Invalid email or password.")
+        setError("Invalid email or password.");
       } else {
-        setError("Something went wrong. Please try again.")
+        setError("Something went wrong. Please try again.");
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -65,9 +65,7 @@ export default function LoginPage() {
         />
       </div>
 
-      {error && (
-        <p className="text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <button
         type="submit"
@@ -79,10 +77,13 @@ export default function LoginPage() {
 
       <p className="text-sm text-gray-600 text-center">
         Don&apos;t have an account?{" "}
-        <Link href="/register" className="font-medium text-blue-600 hover:underline">
+        <Link
+          href="/register"
+          className="font-medium text-blue-600 hover:underline"
+        >
           Register here
         </Link>
       </p>
     </form>
-  )
+  );
 }

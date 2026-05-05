@@ -10,6 +10,7 @@ User = get_user_model()
 
 
 def _token_pair(user):
+    """Return a dict with a fresh access and refresh JWT token for the given user."""
     refresh = RefreshToken.for_user(user)
     return {
         "access": str(refresh.access_token),
@@ -20,6 +21,12 @@ def _token_pair(user):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def register(request):
+    """Create a new user account and return a JWT token pair.
+
+    Expects: email, password, display_name.
+    Returns 400 if any field is missing or the email is already registered.
+    Returns 201 with {access, refresh} on success.
+    """
     email = request.data.get("email", "").strip().lower()
     password = request.data.get("password", "")
     display_name = request.data.get("display_name", "").strip()
@@ -49,6 +56,13 @@ def register(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def login(request):
+    """Authenticate a user by email and password and return a JWT token pair.
+
+    Expects: email, password.
+    Returns 400 if either field is missing.
+    Returns 401 if credentials are invalid.
+    Returns 200 with {access, refresh} on success.
+    """
     email = request.data.get("email", "").strip().lower()
     password = request.data.get("password", "")
 
@@ -71,6 +85,13 @@ def login(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def refresh(request):
+    """Exchange a valid refresh token for a new access token.
+
+    Expects: refresh.
+    Returns 400 if the token is missing.
+    Returns 401 if the token is invalid or expired.
+    Returns 200 with {access} on success.
+    """
     token = request.data.get("refresh", "")
     if not token:
         return Response(
@@ -94,6 +115,12 @@ def refresh(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def logout(request):
+    """Blacklist the provided refresh token, ending the user's session.
+
+    Expects: refresh. Requires a valid access token in the Authorization header.
+    Returns 400 if the token is missing or already invalid.
+    Returns 204 on success.
+    """
     token = request.data.get("refresh", "")
     if not token:
         return Response(

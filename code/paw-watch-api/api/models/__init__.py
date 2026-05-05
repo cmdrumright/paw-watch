@@ -1,1 +1,4 @@
 from .user import User
+from .photo import Photo
+from .post import Post
+from .post_photo import PostPhoto
