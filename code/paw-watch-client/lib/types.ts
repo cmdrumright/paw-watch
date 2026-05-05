@@ -1,3 +1,8 @@
+export interface Label {
+  id: number
+  name: string
+}
+
 export interface PostSummary {
   id: number
   type: "lost" | "found"
@@ -13,5 +18,6 @@ export interface PostSummary {
   created_at: string
   owner_display_name: string
   first_photo_url: string | null
+  labels: Label[]
   comment_count: number
 }

@@ -81,9 +81,24 @@ export default function LeafletMap({ posts }: Props) {
                 )}
 
                 <p className="font-semibold text-gray-900">{post.pet_name}</p>
-                <p className="text-gray-700 text-xs mb-3">
+                <p className="text-gray-700 text-xs">
                   {post.species}{post.breed ? ` · ${post.breed}` : ""}
                 </p>
+
+                {post.labels.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1.5 mb-3">
+                    {post.labels.map((label) => (
+                      <span
+                        key={label.id}
+                        className="text-xs px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100"
+                      >
+                        {label.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {!post.labels.length && <div className="mb-3" />}
 
                 <Link
                   href={`/posts/${post.id}`}

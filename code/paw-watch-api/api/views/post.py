@@ -13,6 +13,7 @@ class PostListSerializer(serializers.ModelSerializer):
 
     owner_display_name = serializers.CharField(source="owner.display_name", read_only=True)
     first_photo_url = serializers.SerializerMethodField()
+    labels = serializers.SerializerMethodField()
     comment_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -32,6 +33,7 @@ class PostListSerializer(serializers.ModelSerializer):
             "created_at",
             "owner_display_name",
             "first_photo_url",
+            "labels",
             "comment_count",
         ]
 
@@ -43,6 +45,11 @@ class PostListSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         url = first.photo.file_path.url
         return request.build_absolute_uri(url) if request else url
+
+    def get_labels(self, obj):
+        """Return all labels attached to this post."""
+        labels = [pl.label for pl in obj.post_labels.select_related("label").all()]
+        return LabelSerializer(labels, many=True).data
 
     def get_comment_count(self, obj):
         """Return the number of comments on this post."""
@@ -242,7 +249,9 @@ class PostViewSet(ViewSet):
         """
         include_closed = request.query_params.get("include_closed", "false").lower() == "true"
 
-        qs = Post.objects.select_related("owner").prefetch_related("post_photos__photo")
+        qs = Post.objects.select_related("owner").prefetch_related(
+            "post_photos__photo", "post_labels__label"
+        )
         if not include_closed:
             qs = qs.exclude(status__in=[Post.Status.REUNITED, Post.Status.CLOSED])
 

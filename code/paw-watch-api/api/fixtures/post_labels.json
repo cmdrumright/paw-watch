@@ -1,0 +1,10 @@
+[
+  {"model": "api.postlabel", "pk": 1,  "fields": {"post": 1, "label": 4}},
+  {"model": "api.postlabel", "pk": 2,  "fields": {"post": 1, "label": 9}},
+  {"model": "api.postlabel", "pk": 3,  "fields": {"post": 1, "label": 13}},
+  {"model": "api.postlabel", "pk": 4,  "fields": {"post": 2, "label": 15}},
+  {"model": "api.postlabel", "pk": 5,  "fields": {"post": 2, "label": 17}},
+  {"model": "api.postlabel", "pk": 6,  "fields": {"post": 3, "label": 11}},
+  {"model": "api.postlabel", "pk": 7,  "fields": {"post": 3, "label": 16}},
+  {"model": "api.postlabel", "pk": 8,  "fields": {"post": 3, "label": 7}}
+]

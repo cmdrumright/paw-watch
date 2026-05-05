@@ -49,6 +49,14 @@ class PostListTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 5)
 
+    def test_list_includes_labels(self):
+        """Each post includes a labels array."""
+        res = self.client.get(POSTS_URL)
+
+        post = next(p for p in res.data if p["id"] == 1)
+        self.assertIn("labels", post)
+        self.assertIsInstance(post["labels"], list)
+
     def test_list_includes_location_coordinates(self):
         """Each post includes location_lat and location_lng for map rendering."""
         res = self.client.get(POSTS_URL)

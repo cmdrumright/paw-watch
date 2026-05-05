@@ -72,9 +72,19 @@ function PostCard({ post }: { post: PostSummary }) {
           {post.location_label ? ` · ${post.location_label}` : ""}
         </p>
 
-        <div className="mt-2 flex items-center justify-end text-xs text-gray-500">
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <div className="flex flex-wrap gap-1">
+            {post.labels.map((label) => (
+              <span
+                key={label.id}
+                className="text-xs px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100"
+              >
+                {label.name}
+              </span>
+            ))}
+          </div>
           {post.comment_count > 0 && (
-            <span>{post.comment_count} 💬</span>
+            <span className="text-xs text-gray-500 whitespace-nowrap shrink-0">{post.comment_count} 💬</span>
           )}
         </div>
       </div>
