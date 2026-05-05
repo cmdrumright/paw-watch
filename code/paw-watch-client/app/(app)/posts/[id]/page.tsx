@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
-import { apiGet, apiDelete } from "@/lib/api"
+import { apiGet, apiDelete, apiPatch } from "@/lib/api"
 import { getUserId } from "@/lib/auth"
 import dynamic from "next/dynamic"
 import CommentForm from "@/components/CommentForm"
@@ -139,6 +139,7 @@ export default function PostDetailPage() {
   const [notFound, setNotFound] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
 
   useEffect(() => {
     apiGet<PostDetail>(`posts/${id}`)
@@ -157,6 +158,19 @@ export default function PostDetailPage() {
     } catch {
       setDeleting(false)
       setShowConfirm(false)
+    }
+  }
+
+  async function handleStatusUpdate(newStatus: string) {
+    if (!post) return
+    setUpdatingStatus(true)
+    try {
+      const updated = await apiPatch<PostDetail>(`posts/${id}/status`, { status: newStatus })
+      setPost(updated)
+    } catch {
+      // silently ignore
+    } finally {
+      setUpdatingStatus(false)
     }
   }
 
@@ -294,7 +308,7 @@ export default function PostDetailPage() {
           </div>
 
           {/* Posted by + owner actions */}
-          <div className="flex items-center justify-between border-t border-gray-100 pt-4 mb-6">
+          <div className="flex items-center justify-between border-t border-gray-100 pt-4 mb-3">
             <span className="text-sm text-gray-500">
               Posted by <span className="font-medium text-gray-700">{post.owner.display_name}</span>
             </span>
@@ -316,6 +330,42 @@ export default function PostDetailPage() {
               </div>
             )}
           </div>
+
+          {/* Status action buttons (owner only) */}
+          {isOwner && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              {post.status !== "reunited" && (
+                <button
+                  type="button"
+                  onClick={() => handleStatusUpdate("reunited")}
+                  disabled={updatingStatus}
+                  className="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
+                >
+                  Mark as Reunited
+                </button>
+              )}
+              {post.status !== "closed" && post.status !== "reunited" && (
+                <button
+                  type="button"
+                  onClick={() => handleStatusUpdate("closed")}
+                  disabled={updatingStatus}
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                >
+                  Close Post
+                </button>
+              )}
+              {(post.status === "closed" || post.status === "reunited") && (
+                <button
+                  type="button"
+                  onClick={() => handleStatusUpdate("active")}
+                  disabled={updatingStatus}
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                >
+                  Reopen
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Comments */}
           <div className="border-t border-gray-100 pt-4">
