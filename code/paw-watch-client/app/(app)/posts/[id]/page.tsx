@@ -5,8 +5,18 @@ import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import { apiGet, apiDelete } from "@/lib/api"
 import { getUserId } from "@/lib/auth"
+import dynamic from "next/dynamic"
 import CommentForm from "@/components/CommentForm"
 import type { PostDetail, Comment } from "@/lib/types"
+
+const PostDetailMap = dynamic(() => import("@/components/PostDetailMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full w-full flex items-center justify-center text-sm text-gray-400 bg-gray-50">
+      Loading map…
+    </div>
+  ),
+})
 
 function ConfirmModal({
   onConfirm,
@@ -106,8 +116,12 @@ function CommentThread({
 
             {/* Sighting location */}
             {c.sighting_lat != null && (
-              <p className="text-xs text-gray-400 mt-1">
-                📍 {c.sighting_lat.toFixed(5)}, {c.sighting_lng?.toFixed(5)}
+              <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                <span>📍</span>
+                <span>
+                  {c.is_confirmed_sighting ? "✓ Confirmed · " : ""}
+                  {c.sighting_lat.toFixed(4)}, {c.sighting_lng?.toFixed(4)}
+                </span>
               </p>
             )}
           </div>
@@ -263,9 +277,20 @@ export default function PostDetailPage() {
           <p className="text-sm text-gray-700 whitespace-pre-wrap mb-4">{post.description}</p>
 
           {/* Location + date */}
-          <div className="text-sm text-gray-500 mb-5 flex flex-col gap-1">
+          <div className="text-sm text-gray-500 mb-4 flex flex-col gap-1">
             <span>📍 {post.location_label}</span>
             <span>📅 {incidentDate}</span>
+          </div>
+
+          {/* Map */}
+          <div className="h-52 rounded-lg overflow-hidden border border-gray-200 isolate mb-5">
+            <PostDetailMap
+              postLat={post.location_lat}
+              postLng={post.location_lng}
+              postType={post.type}
+              petName={post.pet_name}
+              comments={comments}
+            />
           </div>
 
           {/* Posted by + owner actions */}
