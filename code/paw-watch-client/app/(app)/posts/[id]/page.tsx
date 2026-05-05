@@ -56,13 +56,15 @@ function ConfirmModal({
 }
 
 function CommentThread({
-  postId,
   comments,
+  isPostOwner,
   onDelete,
+  onConfirm,
 }: {
-  postId: number
   comments: Comment[]
+  isPostOwner: boolean
   onDelete: (id: number) => void
+  onConfirm: (id: number) => void
 }) {
   const currentUserId = getUserId()
 
@@ -77,7 +79,14 @@ function CommentThread({
 
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-sm font-medium text-gray-800">{c.author.display_name}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm font-medium text-gray-800">{c.author.display_name}</span>
+                {c.is_confirmed_sighting && (
+                  <span className="text-xs bg-green-100 text-green-700 border border-green-200 rounded-full px-1.5 py-0.5 font-medium">
+                    ✓ Confirmed
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-2 shrink-0">
                 <span className="text-xs text-gray-400">
                   {new Date(c.created_at).toLocaleDateString("en-US", {
@@ -114,15 +123,23 @@ function CommentThread({
               </div>
             )}
 
-            {/* Sighting location */}
+            {/* Sighting location + confirm button */}
             {c.sighting_lat != null && (
-              <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                <span>📍</span>
-                <span>
-                  {c.is_confirmed_sighting ? "✓ Confirmed · " : ""}
-                  {c.sighting_lat.toFixed(4)}, {c.sighting_lng?.toFixed(4)}
-                </span>
-              </p>
+              <div className="flex items-center gap-3 mt-1">
+                <p className="text-xs text-gray-400 flex items-center gap-1">
+                  <span>📍</span>
+                  <span>{c.sighting_lat.toFixed(4)}, {c.sighting_lng?.toFixed(4)}</span>
+                </p>
+                {isPostOwner && !c.is_confirmed_sighting && (
+                  <button
+                    type="button"
+                    onClick={() => onConfirm(c.id)}
+                    className="text-xs text-green-600 hover:text-green-800 font-medium transition-colors"
+                  >
+                    ✓ Confirm Sighting
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -171,6 +188,16 @@ export default function PostDetailPage() {
       // silently ignore
     } finally {
       setUpdatingStatus(false)
+    }
+  }
+
+  async function handleConfirmSighting(commentId: number) {
+    try {
+      const updated = await apiPatch<Comment>(`comments/${commentId}/confirm`, {})
+      setComments((prev) => prev.map((c) => (c.id === commentId ? updated : c)))
+      setPost((prev) => prev ? { ...prev, status: "sighting_reported" } : prev)
+    } catch {
+      // silently ignore
     }
   }
 
@@ -243,7 +270,7 @@ export default function PostDetailPage() {
               >
                 {post.type}
               </span>
-              <span className="text-xs text-gray-500 font-medium capitalize">{post.status}</span>
+              <span className="text-xs text-gray-500 font-medium capitalize">{post.status.replace(/_/g, " ")}</span>
             </div>
             <span className="text-xs text-gray-400">Posted {createdDate}</span>
           </div>
@@ -377,9 +404,10 @@ export default function PostDetailPage() {
             ) : (
               <div className="mb-6">
                 <CommentThread
-                  postId={post.id}
                   comments={comments}
+                  isPostOwner={isOwner}
                   onDelete={handleDeleteComment}
+                  onConfirm={handleConfirmSighting}
                 />
               </div>
             )}
