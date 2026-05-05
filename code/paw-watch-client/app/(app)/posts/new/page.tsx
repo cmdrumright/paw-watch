@@ -2,7 +2,21 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import dynamic from "next/dynamic"
 import PhotoUpload from "@/components/PhotoUpload"
+import type { PickedLocation } from "@/components/LocationPickerMap"
+
+const LocationPickerMap = dynamic(
+  () => import("@/components/LocationPickerMap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-full w-full flex items-center justify-center text-sm text-gray-400 bg-gray-50 rounded-lg">
+        Loading map…
+      </div>
+    ),
+  }
+)
 
 const SPECIES = ["Dog", "Cat", "Bird", "Rabbit", "Hamster", "Guinea Pig", "Reptile", "Other"]
 
@@ -15,6 +29,9 @@ export interface PostFormState {
   description: string
   incident_date: string
   photos: File[]
+  location_lat: number | null
+  location_lng: number | null
+  location_label: string
 }
 
 const INITIAL: PostFormState = {
@@ -26,6 +43,9 @@ const INITIAL: PostFormState = {
   description: "",
   incident_date: "",
   photos: [],
+  location_lat: null,
+  location_lng: null,
+  location_label: "",
 }
 
 function InputField({
@@ -187,6 +207,31 @@ export default function NewPostPage() {
               Photos <span className="text-gray-400 font-normal">(up to 4, 5 MB each)</span>
             </span>
             <PhotoUpload onChange={(files) => set("photos", files)} />
+          </div>
+
+          {/* Location picker */}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium text-gray-700">
+              Location <span className="text-gray-400 font-normal">— click the map to drop a pin</span>
+            </span>
+            <div className="h-56 rounded-lg overflow-hidden border border-gray-300 isolate">
+              <LocationPickerMap
+                onPick={(loc: PickedLocation) => {
+                  setForm((f) => ({
+                    ...f,
+                    location_lat: loc.lat,
+                    location_lng: loc.lng,
+                    location_label: loc.label,
+                  }))
+                }}
+              />
+            </div>
+            {form.location_label && (
+              <p className="text-sm text-gray-700 flex items-center gap-1">
+                <span>📍</span>
+                <span>{form.location_label}</span>
+              </p>
+            )}
           </div>
 
           {/* Actions */}
