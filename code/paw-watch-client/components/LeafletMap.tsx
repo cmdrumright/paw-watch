@@ -2,7 +2,8 @@
 
 import "leaflet/dist/leaflet.css"
 import L from "leaflet"
-import { MapContainer, Marker, TileLayer } from "react-leaflet"
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet"
+import Link from "next/link"
 
 const CLARKSVILLE: [number, number] = [36.5298, -87.3595]
 
@@ -34,12 +35,19 @@ function pinIcon(color: string) {
     </svg>`,
     iconSize: [24, 36],
     iconAnchor: [12, 36],
-    popupAnchor: [0, -36],
+    popupAnchor: [0, -40],
   })
 }
 
 const LOST_ICON = pinIcon("#ef4444")
 const FOUND_ICON = pinIcon("#22c55e")
+
+const STATUS_LABELS: Record<string, string> = {
+  active: "Active",
+  sighting_reported: "Sighting Reported",
+  reunited: "Reunited",
+  closed: "Closed",
+}
 
 interface Props {
   posts: PostSummary[]
@@ -63,7 +71,45 @@ export default function LeafletMap({ posts }: Props) {
             key={post.id}
             position={[post.location_lat, post.location_lng]}
             icon={post.type === "lost" ? LOST_ICON : FOUND_ICON}
-          />
+          >
+            <Popup className="paw-popup">
+              <div className="w-48 text-sm">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span
+                    className={`text-xs font-bold uppercase px-1.5 py-0.5 rounded ${
+                      post.type === "lost"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-green-100 text-green-700"
+                    }`}
+                  >
+                    {post.type}
+                  </span>
+                  <span className="text-xs text-gray-700">{STATUS_LABELS[post.status] ?? post.status}</span>
+                </div>
+
+                {post.first_photo_url && (
+                  <img
+                    src={post.first_photo_url}
+                    alt={post.pet_name}
+                    className="w-full h-24 object-cover rounded mb-2"
+                  />
+                )}
+
+                <p className="font-semibold text-gray-900">{post.pet_name}</p>
+                <p className="text-gray-700 text-xs mb-3">
+                  {post.species}{post.breed ? ` · ${post.breed}` : ""}
+                </p>
+
+                <Link
+                  href={`/posts/${post.id}`}
+                  className="block text-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
+                  style={{ color: "white" }}
+                >
+                  View Post
+                </Link>
+              </div>
+            </Popup>
+          </Marker>
         ))}
       </MapContainer>
 
