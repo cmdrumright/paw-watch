@@ -1,0 +1,52 @@
+info:
+  name: Get post
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{base-url}}/api/posts/1"
+  headers:
+    - name: Authorization
+      value: "Bearer {{accessToken}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+tests: |
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns the correct post", function() {
+    expect(res.body.id).to.equal(1);
+  });
+
+  test("includes full post fields", function() {
+    const required = [
+      "id", "type", "status", "pet_name", "species", "breed", "color",
+      "description", "incident_date", "location_lat", "location_lng",
+      "location_label", "created_at", "updated_at"
+    ];
+    required.forEach(field => {
+      expect(res.body).to.have.property(field);
+    });
+  });
+
+  test("includes owner with id, display_name, and avatar_url", function() {
+    expect(res.body.owner).to.have.property("id");
+    expect(res.body.owner).to.have.property("display_name");
+    expect(res.body.owner).to.have.property("avatar_url");
+  });
+
+  test("includes photos array", function() {
+    expect(res.body.photos).to.be.an("array");
+  });
+
+  test("includes comment_count", function() {
+    expect(res.body).to.have.property("comment_count");
+  });

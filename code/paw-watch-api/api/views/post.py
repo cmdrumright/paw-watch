@@ -1,9 +1,10 @@
 from rest_framework import serializers, status
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from api.models import Post
+from api.models import Post, Photo, PostPhoto
 
 
 class PostListSerializer(serializers.ModelSerializer):
@@ -48,10 +49,135 @@ class PostListSerializer(serializers.ModelSerializer):
             return 0
 
 
+class PhotoSerializer(serializers.ModelSerializer):
+    """Serializer for a single photo, returning the absolute file URL."""
+
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Photo
+        fields = ["id", "url", "order"]
+
+    def get_url(self, obj):
+        """Return the absolute URL for the photo file."""
+        request = self.context.get("request")
+        return request.build_absolute_uri(obj.file_path.url) if request else obj.file_path.url
+
+
+class OwnerSerializer(serializers.Serializer):
+    """Serializer for the post owner, exposing public profile fields only."""
+
+    id = serializers.IntegerField()
+    display_name = serializers.CharField()
+    avatar_url = serializers.URLField()
+
+
+class PostDetailSerializer(serializers.ModelSerializer):
+    """Serializer for the post detail endpoint — full fields including all photos and owner info."""
+
+    owner = OwnerSerializer(read_only=True)
+    photos = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Post
+        fields = [
+            "id",
+            "type",
+            "status",
+            "pet_name",
+            "species",
+            "breed",
+            "color",
+            "description",
+            "incident_date",
+            "location_lat",
+            "location_lng",
+            "location_label",
+            "created_at",
+            "updated_at",
+            "owner",
+            "photos",
+            "comment_count",
+        ]
+
+    def get_photos(self, obj):
+        """Return all photos attached to this post in display order."""
+        photos = [pp.photo for pp in obj.post_photos.select_related("photo").all()]
+        return PhotoSerializer(photos, many=True, context=self.context).data
+
+    def get_comment_count(self, obj):
+        """Return the number of comments on this post."""
+        try:
+            return obj.comments.count()
+        except AttributeError:
+            return 0
+
+
+class PostCreateSerializer(serializers.Serializer):
+    """Validates the multipart payload for creating a new post."""
+
+    type = serializers.ChoiceField(choices=Post.Type.choices)
+    pet_name = serializers.CharField(max_length=100)
+    species = serializers.CharField(max_length=50)
+    breed = serializers.CharField(max_length=100, required=False, allow_blank=True, default="")
+    color = serializers.CharField(max_length=100)
+    description = serializers.CharField()
+    incident_date = serializers.DateField()
+    location_lat = serializers.FloatField()
+    location_lng = serializers.FloatField()
+    location_label = serializers.CharField(max_length=255)
+    photos = serializers.ListField(
+        child=serializers.ImageField(),
+        required=False,
+        allow_empty=True,
+    )
+
+    def validate_photos(self, value):
+        """Reject submissions with more than 4 photos."""
+        if len(value) > 4:
+            raise serializers.ValidationError("A post may have at most 4 photos.")
+        return value
+
+
 class PostViewSet(ViewSet):
-    """Handles listing pet posts."""
+    """Handles listing and retrieving pet posts."""
 
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def create(self, request):
+        """Create a new post with up to 4 photos.
+
+        Accepts multipart/form-data. Images are saved to disk, Photo records are
+        created, and each is linked to the new post via PostPhoto.
+        Returns the full post detail on success (201).
+        """
+        data = request.data.copy()
+        photos = request.FILES.getlist("photos")
+        data.setlist("photos", photos)
+
+        serializer = PostCreateSerializer(data=data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        validated = serializer.validated_data
+        photo_files = validated.pop("photos", [])
+
+        post = Post.objects.create(owner=request.user, **validated)
+
+        for order, file in enumerate(photo_files):
+            photo = Photo.objects.create(file_path=file, order=order)
+            PostPhoto.objects.create(post=post, photo=photo)
+
+        post.refresh_from_db()
+        post_with_related = Post.objects.select_related("owner").prefetch_related(
+            "post_photos__photo"
+        ).get(pk=post.pk)
+        return Response(
+            PostDetailSerializer(post_with_related, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )
 
     def list(self, request):
         """Return all posts, excluding reunited and closed by default.
@@ -66,4 +192,19 @@ class PostViewSet(ViewSet):
             qs = qs.exclude(status__in=[Post.Status.REUNITED, Post.Status.CLOSED])
 
         serializer = PostListSerializer(qs, many=True, context={"request": request})
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        """Return the full detail for a single post including all photos and owner info.
+
+        Returns 404 if the post does not exist.
+        """
+        try:
+            post = Post.objects.select_related("owner").prefetch_related(
+                "post_photos__photo"
+            ).get(pk=pk)
+        except Post.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = PostDetailSerializer(post, context={"request": request})
         return Response(serializer.data)
