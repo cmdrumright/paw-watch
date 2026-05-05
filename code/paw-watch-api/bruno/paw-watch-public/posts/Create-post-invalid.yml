@@ -1,0 +1,46 @@
+info:
+  name: Create post - missing required field
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{base-url}}/api/posts"
+  headers:
+    - name: Authorization
+      value: "Bearer {{accessToken}}"
+  auth: inherit
+  body:
+    type: multipart-form
+    data:
+      - name: type
+        value: lost
+      - name: species
+        value: dog
+      - name: color
+        value: brown
+      - name: description
+        value: Missing pet_name field.
+      - name: incident_date
+        value: "2026-05-01"
+      - name: location_lat
+        value: "36.5298"
+      - name: location_lng
+        value: "-87.3595"
+      - name: location_label
+        value: Clarksville, TN
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+tests: |
+  test("status is 400", function() {
+    expect(res.status).to.equal(400);
+  });
+
+  test("error mentions pet_name", function() {
+    expect(res.body).to.have.property("pet_name");
+  });

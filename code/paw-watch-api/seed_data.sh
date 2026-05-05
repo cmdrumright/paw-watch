@@ -13,4 +13,7 @@ pipenv run python manage.py makemigrations
 echo "Running migrations..."
 pipenv run python manage.py migrate
 
+echo "Loading fixtures..."
+pipenv run python manage.py loaddata users posts labels
+
 echo "Done. Database is clean and ready."

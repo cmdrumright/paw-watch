@@ -1,0 +1,62 @@
+[
+  {
+    "model": "api.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$CAdpPmycnxmUYXZHPAu1Q6$HIfxORNF0c+wNpjvEQ6lMxjYFFVMw3vu55stjNR6X6A=",
+      "username": "jane@example.com",
+      "email": "jane@example.com",
+      "first_name": "Jane",
+      "last_name": "Doe",
+      "display_name": "Jane D.",
+      "avatar_url": "",
+      "role": "member",
+      "is_staff": false,
+      "is_active": true,
+      "is_superuser": false,
+      "date_joined": "2026-05-04T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "api.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$CAdpPmycnxmUYXZHPAu1Q6$HIfxORNF0c+wNpjvEQ6lMxjYFFVMw3vu55stjNR6X6A=",
+      "username": "tom@example.com",
+      "email": "tom@example.com",
+      "first_name": "Tom",
+      "last_name": "K.",
+      "display_name": "Tom K.",
+      "avatar_url": "",
+      "role": "member",
+      "is_staff": false,
+      "is_active": true,
+      "is_superuser": false,
+      "date_joined": "2026-05-04T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "api.user",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$CAdpPmycnxmUYXZHPAu1Q6$HIfxORNF0c+wNpjvEQ6lMxjYFFVMw3vu55stjNR6X6A=",
+      "username": "admin@example.com",
+      "email": "admin@example.com",
+      "first_name": "Admin",
+      "last_name": "",
+      "display_name": "Admin",
+      "avatar_url": "",
+      "role": "admin",
+      "is_staff": true,
+      "is_active": true,
+      "is_superuser": true,
+      "date_joined": "2026-05-04T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  }
+]
