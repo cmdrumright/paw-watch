@@ -1,0 +1,58 @@
+info:
+  name: Create comment
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{base-url}}/api/posts/{{createdPostId}}/comments"
+  headers:
+    - name: Authorization
+      value: "Bearer {{accessToken}}"
+  body:
+    type: multipart-form
+    data:
+      - name: body
+        type: text
+        value: "I think I saw this pet near Exit 11 this morning!"
+      - name: sighting_lat
+        type: text
+        value: "36.5200"
+      - name: sighting_lng
+        type: text
+        value: "-87.3600"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: bru.setEnvVar("createdCommentId", String(res.body.id));
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+tests: |
+  test("status is 201", function() {
+    expect(res.status).to.equal(201);
+  });
+
+  test("returns comment with body", function() {
+    expect(res.body.body).to.equal("I think I saw this pet near Exit 11 this morning!");
+  });
+
+  test("returns sighting coords", function() {
+    expect(res.body.sighting_lat).to.equal(36.52);
+    expect(res.body.sighting_lng).to.equal(-87.36);
+  });
+
+  test("returns author info", function() {
+    expect(res.body.author).to.have.property("id");
+    expect(res.body.author).to.have.property("display_name");
+  });
+
+  test("photos is empty array", function() {
+    expect(res.body.photos).to.be.an("array").that.is.empty;
+  });

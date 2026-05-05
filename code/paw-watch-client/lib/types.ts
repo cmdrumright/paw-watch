@@ -24,6 +24,23 @@ export interface PostDetail {
   comment_count: number
 }
 
+export interface CommentPhoto {
+  id: number
+  url: string
+  order: number
+}
+
+export interface Comment {
+  id: number
+  author: { id: number; display_name: string; avatar_url: string }
+  body: string
+  sighting_lat: number | null
+  sighting_lng: number | null
+  is_confirmed_sighting: boolean
+  created_at: string
+  photos: CommentPhoto[]
+}
+
 export interface PostSummary {
   id: number
   type: "lost" | "found"
