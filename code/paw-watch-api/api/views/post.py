@@ -140,6 +140,22 @@ class PostCreateSerializer(serializers.Serializer):
         return value
 
 
+class PostUpdateSerializer(serializers.Serializer):
+    """Validates the multipart payload for partially updating a post. All fields optional."""
+
+    type = serializers.ChoiceField(choices=Post.Type.choices, required=False)
+    status = serializers.ChoiceField(choices=Post.Status.choices, required=False)
+    pet_name = serializers.CharField(max_length=100, required=False)
+    species = serializers.CharField(max_length=50, required=False)
+    breed = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    color = serializers.CharField(max_length=100, required=False)
+    description = serializers.CharField(required=False)
+    incident_date = serializers.DateField(required=False)
+    location_lat = serializers.FloatField(required=False)
+    location_lng = serializers.FloatField(required=False)
+    location_label = serializers.CharField(max_length=255, required=False)
+
+
 class PostViewSet(ViewSet):
     """Handles listing and retrieving pet posts."""
 
@@ -193,6 +209,55 @@ class PostViewSet(ViewSet):
 
         serializer = PostListSerializer(qs, many=True, context={"request": request})
         return Response(serializer.data)
+
+    def partial_update(self, request, pk=None):
+        """Partially update a post. Owner only.
+
+        Accepts multipart/form-data with any subset of post fields.
+        Returns the updated post detail on success (200), or 403 if the
+        requesting user is not the post owner.
+        """
+        try:
+            post = Post.objects.select_related("owner").prefetch_related(
+                "post_photos__photo"
+            ).get(pk=pk)
+        except Post.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if post.owner != request.user:
+            return Response({"detail": "You do not have permission to edit this post."}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = PostUpdateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        for field, value in serializer.validated_data.items():
+            setattr(post, field, value)
+        post.save()
+
+        post_with_related = Post.objects.select_related("owner").prefetch_related(
+            "post_photos__photo"
+        ).get(pk=post.pk)
+        return Response(PostDetailSerializer(post_with_related, context={"request": request}).data)
+
+    def destroy(self, request, pk=None):
+        """Delete a post. Owner or admin only.
+
+        Returns 204 on success, 403 if the requesting user is neither the post
+        owner nor an admin.
+        """
+        try:
+            post = Post.objects.get(pk=pk)
+        except Post.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        is_owner = post.owner == request.user
+        is_admin = request.user.role == request.user.Role.ADMIN
+        if not (is_owner or is_admin):
+            return Response({"detail": "You do not have permission to delete this post."}, status=status.HTTP_403_FORBIDDEN)
+
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def retrieve(self, request, pk=None):
         """Return the full detail for a single post including all photos and owner info.
