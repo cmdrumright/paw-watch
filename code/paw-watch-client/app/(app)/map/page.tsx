@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic"
 import { useEffect, useState } from "react"
 import { apiGet } from "@/lib/api"
-import type { PostSummary } from "@/components/LeafletMap"
+import type { PostSummary } from "@/lib/types"
 
 const LeafletMap = dynamic(() => import("@/components/LeafletMap"), {
   ssr: false,

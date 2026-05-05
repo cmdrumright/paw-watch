@@ -4,26 +4,11 @@ import "leaflet/dist/leaflet.css"
 import L from "leaflet"
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet"
 import Link from "next/link"
+import type { PostSummary } from "@/lib/types"
+
+export type { PostSummary }
 
 const CLARKSVILLE: [number, number] = [36.5298, -87.3595]
-
-export interface PostSummary {
-  id: number
-  type: "lost" | "found"
-  status: string
-  pet_name: string
-  species: string
-  breed: string
-  color: string
-  location_label: string
-  location_lat: number
-  location_lng: number
-  incident_date: string
-  created_at: string
-  owner_display_name: string
-  first_photo_url: string | null
-  comment_count: number
-}
 
 function pinIcon(color: string) {
   return L.divIcon({
