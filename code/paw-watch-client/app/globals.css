@@ -21,3 +21,21 @@ body {
 html {
   @apply text-gray-900;
 }
+
+/* Strip Leaflet popup chrome so our card styles take over */
+.leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.leaflet-popup-content {
+  margin: 0;
+  padding: 0.75rem;
+}
+.leaflet-popup-tip-container {
+  display: none;
+}
+/* Leaflet sets a blue color on <a> tags inside popups — reset it */
+.leaflet-popup-content a {
+  color: inherit;
+}
