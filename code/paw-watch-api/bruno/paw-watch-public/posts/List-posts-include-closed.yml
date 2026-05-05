@@ -1,0 +1,33 @@
+info:
+  name: List posts - include closed
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{base-url}}/api/posts?include_closed=true"
+  headers:
+    - name: Authorization
+      value: "Bearer {{accessToken}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+tests: |
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("includes reunited and closed posts", function() {
+    const statuses = res.body.map(p => p.status);
+    expect(statuses).to.include("reunited");
+    expect(statuses).to.include("closed");
+  });
+
+  test("returns more posts than the default list", function() {
+    expect(res.body.length).to.be.greaterThan(0);
+  });
