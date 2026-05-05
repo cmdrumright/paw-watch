@@ -26,6 +26,8 @@ class PostListSerializer(serializers.ModelSerializer):
             "breed",
             "color",
             "location_label",
+            "location_lat",
+            "location_lng",
             "incident_date",
             "created_at",
             "owner_display_name",

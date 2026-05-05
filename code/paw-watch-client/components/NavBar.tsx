@@ -42,7 +42,7 @@ export default function NavBar() {
   const showNewPost = isMapView || isListView
 
   return (
-    <header className="flex items-center justify-between px-4 h-14 bg-white border-b border-gray-200 shrink-0">
+    <header className="relative z-10 flex items-center justify-between px-4 h-14 bg-white border-b border-gray-200 shrink-0">
       <Link href="/map" className="text-base font-bold text-gray-900 whitespace-nowrap">
         PawWatch Clarksville
       </Link>
