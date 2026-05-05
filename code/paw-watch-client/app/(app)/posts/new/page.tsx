@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import PhotoUpload from "@/components/PhotoUpload"
 
 const SPECIES = ["Dog", "Cat", "Bird", "Rabbit", "Hamster", "Guinea Pig", "Reptile", "Other"]
 
@@ -13,6 +14,7 @@ export interface PostFormState {
   color: string
   description: string
   incident_date: string
+  photos: File[]
 }
 
 const INITIAL: PostFormState = {
@@ -23,6 +25,7 @@ const INITIAL: PostFormState = {
   color: "",
   description: "",
   incident_date: "",
+  photos: [],
 }
 
 function InputField({
@@ -177,6 +180,14 @@ export default function NewPostPage() {
               placeholder="Describe the pet — markings, behaviour, where last seen…"
             />
           </InputField>
+
+          {/* Photos */}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium text-gray-700">
+              Photos <span className="text-gray-400 font-normal">(up to 4, 5 MB each)</span>
+            </span>
+            <PhotoUpload onChange={(files) => set("photos", files)} />
+          </div>
 
           {/* Actions */}
           <div className="flex gap-3 pt-2">
