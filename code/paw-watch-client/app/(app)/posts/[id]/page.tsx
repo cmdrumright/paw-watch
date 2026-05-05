@@ -262,6 +262,13 @@ export default function PostDetailPage() {
             ← Back to Map
           </Link>
 
+          {/* Reunited banner */}
+          {post.status === "reunited" && (
+            <div className="w-full bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-5 text-center text-sm font-semibold text-green-800">
+              🎉 {post.pet_name} has been reunited with their family!
+            </div>
+          )}
+
           {/* Type + status + date */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
