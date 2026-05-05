@@ -95,28 +95,44 @@ function PostCard({ post }: { post: PostSummary }) {
 export default function ListPage() {
   const [posts, setPosts] = useState<PostSummary[]>([])
   const [loading, setLoading] = useState(true)
+  const [includeClosed, setIncludeClosed] = useState(false)
 
   useEffect(() => {
-    apiGet<PostSummary[]>("posts")
+    setLoading(true)
+    const path = includeClosed ? "posts?include_closed=true" : "posts"
+    apiGet<PostSummary[]>(path)
       .then(setPosts)
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [])
+  }, [includeClosed])
 
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto px-4 py-6">
-        <div className="flex items-baseline justify-between mb-4">
-          <h1 className="text-lg font-bold text-gray-900">Active Posts</h1>
-          {!loading && (
-            <span className="text-sm text-gray-500">{posts.length} results</span>
-          )}
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-lg font-bold text-gray-900">
+            {includeClosed ? "All Posts" : "Active Posts"}
+          </h1>
+          <div className="flex items-center gap-3">
+            {!loading && (
+              <span className="text-sm text-gray-500">{posts.length} results</span>
+            )}
+            <label className="flex items-center gap-1.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={includeClosed}
+                onChange={(e) => setIncludeClosed(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+              />
+              <span className="text-sm text-gray-600">Show closed</span>
+            </label>
+          </div>
         </div>
 
         {loading ? (
           <div className="flex justify-center py-16 text-gray-400 text-sm">Loading…</div>
         ) : posts.length === 0 ? (
-          <div className="flex justify-center py-16 text-gray-400 text-sm">No active posts.</div>
+          <div className="flex justify-center py-16 text-gray-400 text-sm">No posts found.</div>
         ) : (
           <div className="flex flex-col gap-3">
             {posts.map((post) => (
