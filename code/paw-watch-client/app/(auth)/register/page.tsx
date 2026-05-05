@@ -19,8 +19,8 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      const { access, refresh } = await registerRequest(email, password, displayName)
-      setTokens(access, refresh)
+      const { access, refresh, display_name } = await registerRequest(email, password, displayName)
+      setTokens(access, refresh, display_name)
       router.push("/map")
     } catch (err: unknown) {
       const status = err instanceof Error ? err.message : ""
