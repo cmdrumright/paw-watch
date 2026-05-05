@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
 import PhotoUpload from "@/components/PhotoUpload"
 import type { PickedLocation } from "@/components/LocationPickerMap"
+import { apiPostForm } from "@/lib/api"
 
 const LocationPickerMap = dynamic(
   () => import("@/components/LocationPickerMap"),
@@ -41,7 +42,7 @@ const INITIAL: PostFormState = {
   breed: "",
   color: "",
   description: "",
-  incident_date: "",
+  incident_date: new Date().toISOString().slice(0, 10),
   photos: [],
   location_lat: null,
   location_lng: null,
@@ -51,10 +52,12 @@ const INITIAL: PostFormState = {
 function InputField({
   label,
   id,
+  error,
   children,
 }: {
   label: string
   id: string
+  error?: string
   children: React.ReactNode
 }) {
   return (
@@ -63,6 +66,7 @@ function InputField({
         {label}
       </label>
       {children}
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   )
 }
@@ -73,9 +77,50 @@ const inputClass =
 export default function NewPostPage() {
   const router = useRouter()
   const [form, setForm] = useState<PostFormState>(INITIAL)
+  const [errors, setErrors] = useState<Record<string, string[]>>({})
+  const [submitting, setSubmitting] = useState(false)
 
   function set<K extends keyof PostFormState>(key: K, value: PostFormState[K]) {
     setForm((f) => ({ ...f, [key]: value }))
+  }
+
+  async function handleSubmit() {
+    setErrors({})
+
+    const clientErrors: Record<string, string[]> = {}
+    if (!form.pet_name.trim()) clientErrors.pet_name = ["Pet name is required."]
+    if (!form.color.trim()) clientErrors.color = ["Color is required."]
+    if (!form.description.trim()) clientErrors.description = ["Description is required."]
+    if (!form.incident_date) clientErrors.incident_date = ["Date is required."]
+    if (form.location_lat === null) clientErrors.location = ["Drop a pin to set the location."]
+    if (Object.keys(clientErrors).length) { setErrors(clientErrors); return }
+
+    const body = new FormData()
+    body.append("type", form.type)
+    body.append("pet_name", form.pet_name.trim())
+    body.append("species", form.species)
+    body.append("breed", form.breed.trim())
+    body.append("color", form.color.trim())
+    body.append("description", form.description.trim())
+    body.append("incident_date", form.incident_date)
+    body.append("location_lat", String(form.location_lat))
+    body.append("location_lng", String(form.location_lng))
+    body.append("location_label", form.location_label)
+    form.photos.forEach((f) => body.append("photos", f))
+
+    setSubmitting(true)
+    try {
+      const post = await apiPostForm<{ id: number }>("posts", body)
+      router.push(`/posts/${post.id}`)
+    } catch (err) {
+      if (err instanceof Error && err.message === "400") {
+        setErrors({ general: ["Please check your entries and try again."] })
+      } else {
+        setErrors({ general: ["Something went wrong. Please try again."] })
+      }
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -126,7 +171,7 @@ export default function NewPostPage() {
 
           {/* Pet name + species */}
           <div className="grid grid-cols-2 gap-4">
-            <InputField label="Pet Name" id="pet_name">
+            <InputField label="Pet Name" id="pet_name" error={errors.pet_name?.[0]}>
               <input
                 id="pet_name"
                 type="text"
@@ -166,7 +211,7 @@ export default function NewPostPage() {
               />
             </InputField>
 
-            <InputField label="Color" id="color">
+            <InputField label="Color" id="color" error={errors.color?.[0]}>
               <input
                 id="color"
                 type="text"
@@ -179,7 +224,7 @@ export default function NewPostPage() {
           </div>
 
           {/* Date */}
-          <InputField label="Date Lost / Found" id="incident_date">
+          <InputField label="Date Lost / Found" id="incident_date" error={errors.incident_date?.[0]}>
             <input
               id="incident_date"
               type="date"
@@ -190,7 +235,7 @@ export default function NewPostPage() {
           </InputField>
 
           {/* Description */}
-          <InputField label="Description" id="description">
+          <InputField label="Description" id="description" error={errors.description?.[0]}>
             <textarea
               id="description"
               rows={4}
@@ -226,27 +271,36 @@ export default function NewPostPage() {
                 }}
               />
             </div>
-            {form.location_label && (
+            {form.location_label ? (
               <p className="text-sm text-gray-700 flex items-center gap-1">
                 <span>📍</span>
                 <span>{form.location_label}</span>
               </p>
-            )}
+            ) : errors.location ? (
+              <p className="text-xs text-red-600">{errors.location[0]}</p>
+            ) : null}
           </div>
+
+          {/* General errors */}
+          {errors.general && (
+            <p className="text-sm text-red-600">{errors.general[0]}</p>
+          )}
 
           {/* Actions */}
           <div className="flex gap-3 pt-2">
             <button
               type="button"
-              disabled
-              className="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
+              onClick={handleSubmit}
+              disabled={submitting}
+              className="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
             >
-              Post
+              {submitting ? "Posting…" : "Post"}
             </button>
             <button
               type="button"
               onClick={() => router.back()}
-              className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              disabled={submitting}
+              className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
             >
               Cancel
             </button>

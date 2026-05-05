@@ -144,22 +144,11 @@ class PostCreateSerializer(serializers.Serializer):
     location_lat = serializers.FloatField()
     location_lng = serializers.FloatField()
     location_label = serializers.CharField(max_length=255)
-    photos = serializers.ListField(
-        child=serializers.ImageField(),
-        required=False,
-        allow_empty=True,
-    )
     label_ids = serializers.ListField(
         child=serializers.IntegerField(),
         required=False,
         allow_empty=True,
     )
-
-    def validate_photos(self, value):
-        """Reject submissions with more than 4 photos."""
-        if len(value) > 4:
-            raise serializers.ValidationError("A post may have at most 4 photos.")
-        return value
 
     def validate_label_ids(self, value):
         """Reject label IDs that do not exist."""
@@ -208,20 +197,19 @@ class PostViewSet(ViewSet):
     def create(self, request):
         """Create a new post with up to 4 photos.
 
-        Accepts multipart/form-data. Images are saved to disk, Photo records are
-        created, and each is linked to the new post via PostPhoto.
+        Accepts multipart/form-data. Text fields are validated by PostCreateSerializer;
+        photo files are read directly from request.FILES to avoid QueryDict copy issues.
         Returns the full post detail on success (201).
         """
-        data = request.data.copy()
-        photos = request.FILES.getlist("photos")
-        data.setlist("photos", photos)
+        photo_files = request.FILES.getlist("photos")
+        if len(photo_files) > 4:
+            return Response({"photos": ["A post may have at most 4 photos."]}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = PostCreateSerializer(data=data)
+        serializer = PostCreateSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         validated = serializer.validated_data
-        photo_files = validated.pop("photos", [])
         label_ids = validated.pop("label_ids", [])
 
         post = Post.objects.create(owner=request.user, **validated)
