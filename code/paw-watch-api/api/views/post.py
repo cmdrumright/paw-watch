@@ -1,5 +1,5 @@
 from rest_framework import serializers, status
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
@@ -192,7 +192,7 @@ class PostViewSet(ViewSet):
     """Handles listing and retrieving pet posts."""
 
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def create(self, request):
         """Create a new post with up to 4 photos.
@@ -302,6 +302,39 @@ class PostViewSet(ViewSet):
 
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def set_status(self, request, pk=None):
+        """Update only the status field of a post. Owner only.
+
+        Accepts JSON or form data with a single `status` field.
+        Returns the updated post detail on success (200).
+        """
+        try:
+            post = Post.objects.select_related("owner").get(pk=pk)
+        except Post.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if post.owner != request.user:
+            return Response(
+                {"detail": "You do not have permission to update this post."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        new_status = request.data.get("status", "").strip()
+        valid = [c[0] for c in Post.Status.choices]
+        if new_status not in valid:
+            return Response(
+                {"status": [f"Must be one of: {', '.join(valid)}."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        post.status = new_status
+        post.save()
+
+        post_with_related = Post.objects.select_related("owner").prefetch_related(
+            "post_photos__photo", "post_labels__label"
+        ).get(pk=post.pk)
+        return Response(PostDetailSerializer(post_with_related, context={"request": request}).data)
 
     def retrieve(self, request, pk=None):
         """Return the full detail for a single post including all photos and owner info.
