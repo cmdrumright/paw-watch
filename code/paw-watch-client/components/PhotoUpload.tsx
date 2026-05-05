@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react"
 
-const MAX_SLOTS = 4
 const MAX_BYTES = 5 * 1024 * 1024 // 5 MB
 
 interface Slot {
@@ -12,9 +11,10 @@ interface Slot {
 
 interface Props {
   onChange: (files: File[]) => void
+  maxSlots?: number
 }
 
-export default function PhotoUpload({ onChange }: Props) {
+export default function PhotoUpload({ onChange, maxSlots = 4 }: Props) {
   const [slots, setSlots] = useState<Slot[]>([])
   const [errors, setErrors] = useState<string[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
@@ -26,8 +26,8 @@ export default function PhotoUpload({ onChange }: Props) {
     const accepted: Slot[] = []
 
     Array.from(incoming).forEach((file) => {
-      if (slots.length + accepted.length >= MAX_SLOTS) {
-        newErrors.push(`Only ${MAX_SLOTS} photos allowed.`)
+      if (slots.length + accepted.length >= maxSlots) {
+        newErrors.push(`Only ${maxSlots} photos allowed.`)
         return
       }
       if (file.size > MAX_BYTES) {
@@ -51,7 +51,7 @@ export default function PhotoUpload({ onChange }: Props) {
     onChange(next.map((s) => s.file))
   }
 
-  const emptySlots = MAX_SLOTS - slots.length
+  const emptySlots = maxSlots - slots.length
 
   return (
     <div className="flex flex-col gap-2">

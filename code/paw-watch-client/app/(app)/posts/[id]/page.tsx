@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import { apiGet, apiDelete } from "@/lib/api"
 import { getUserId } from "@/lib/auth"
+import CommentForm from "@/components/CommentForm"
 import type { PostDetail, Comment } from "@/lib/types"
 
 function ConfirmModal({
@@ -297,14 +298,24 @@ export default function PostDetailPage() {
               Comments ({comments.length})
             </p>
             {comments.length === 0 ? (
-              <p className="text-sm text-gray-400">No comments yet.</p>
+              <p className="text-sm text-gray-400 mb-6">No comments yet.</p>
             ) : (
-              <CommentThread
-                postId={post.id}
-                comments={comments}
-                onDelete={handleDeleteComment}
-              />
+              <div className="mb-6">
+                <CommentThread
+                  postId={post.id}
+                  comments={comments}
+                  onDelete={handleDeleteComment}
+                />
+              </div>
             )}
+
+            <div className="border-t border-gray-100 pt-4">
+              <p className="text-sm font-semibold text-gray-700 mb-3">Leave a Comment</p>
+              <CommentForm
+                postId={post.id}
+                onCommentAdded={(c) => setComments((prev) => [...prev, c])}
+              />
+            </div>
           </div>
         </div>
       </div>
