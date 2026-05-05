@@ -18,8 +18,8 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { access, refresh, display_name } = await loginRequest(email, password);
-      setTokens(access, refresh, display_name);
+      const { access, refresh, display_name, user_id } = await loginRequest(email, password);
+      setTokens(access, refresh, display_name, user_id);
       router.push("/map");
     } catch (err: unknown) {
       const status = err instanceof Error ? err.message : "";
