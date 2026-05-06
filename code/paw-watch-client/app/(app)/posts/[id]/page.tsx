@@ -345,12 +345,12 @@ export default function PostDetailPage() {
           </div>
 
           {/* Posted by + owner actions */}
-          <div className="flex items-center justify-between border-t border-gray-100 pt-4 mb-3">
+          <div className="flex flex-wrap items-center justify-between gap-y-2 border-t border-gray-100 pt-4 mb-3">
             <span className="text-sm text-gray-500">
               Posted by <span className="font-medium text-gray-700">{post.owner.display_name}</span>
             </span>
             {(isOwner || admin) && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 shrink-0">
                 {isOwner && (
                   <Link
                     href={`/posts/${post.id}/edit`}

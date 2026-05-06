@@ -170,7 +170,7 @@ export default function PostForm({
           </div>
 
           {/* Pet name + species */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <InputField label="Pet Name" id="pet_name" error={errors.pet_name?.[0]}>
               <input
                 id="pet_name"
@@ -199,7 +199,7 @@ export default function PostForm({
           </div>
 
           {/* Breed + color */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <InputField label="Breed" id="breed">
               <input
                 id="breed"
