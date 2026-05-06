@@ -31,7 +31,7 @@ export default function LabelPicker({ selected, onChange }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-x-4 gap-y-2">
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
       {labels.map((label) => {
         const checked = selected.includes(label.id)
         return (
