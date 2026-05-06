@@ -286,11 +286,14 @@ class PostViewSet(ViewSet):
             for label_id in (label_ids or []):
                 PostLabel.objects.create(post=post, label_id=label_id)
 
-        # Handle photo deletions
+        # Handle photo deletions — delete the file from storage, then the record
         delete_ids_raw = request.data.getlist("delete_photo_ids")
         if delete_ids_raw:
             delete_ids = [int(x) for x in delete_ids_raw if x.isdigit()]
-            PostPhoto.objects.filter(post=post, photo_id__in=delete_ids).delete()
+            photos_to_delete = Photo.objects.filter(post_photos__post=post, pk__in=delete_ids)
+            for photo in photos_to_delete:
+                photo.file_path.delete(save=False)
+            photos_to_delete.delete()
 
         # Handle new photo uploads
         new_files = request.FILES.getlist("photos")
