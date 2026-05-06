@@ -6,6 +6,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from api.models import Post, PostPhoto
+from api.tests.base import TempMediaMixin
 
 User = get_user_model()
 
@@ -34,7 +35,7 @@ VALID_PAYLOAD = {
 }
 
 
-class PostCreateTests(APITestCase):
+class PostCreateTests(TempMediaMixin, APITestCase):
     """Tests for POST /api/posts."""
 
     fixtures = ["users", "posts"]
