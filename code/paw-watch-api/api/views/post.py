@@ -322,7 +322,7 @@ class PostViewSet(ViewSet):
         owner nor an admin.
         """
         try:
-            post = Post.objects.get(pk=pk)
+            post = Post.objects.prefetch_related("post_photos__photo").get(pk=pk)
         except Post.DoesNotExist:
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -331,7 +331,11 @@ class PostViewSet(ViewSet):
         if not (is_owner or is_admin):
             return Response({"detail": "You do not have permission to delete this post."}, status=status.HTTP_403_FORBIDDEN)
 
+        photos = [pp.photo for pp in post.post_photos.all()]
         post.delete()
+        for photo in photos:
+            photo.file_path.delete(save=False)
+            photo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def set_status(self, request, pk=None):
