@@ -93,3 +93,29 @@ class PostListTests(APITestCase):
         res = self.client.get(POSTS_URL)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_mine_param_returns_only_current_users_posts(self):
+        """mine=true returns all posts owned by the authenticated user including closed."""
+        res = self.client.get(POSTS_URL, {"mine": "true"})
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        for post in res.data:
+            self.assertEqual(post["owner_display_name"], "Jane D.")
+
+    def test_mine_param_includes_closed_and_reunited(self):
+        """mine=true includes closed and reunited posts without needing include_closed."""
+        res = self.client.get(POSTS_URL, {"mine": "true"})
+
+        returned_ids = {p["id"] for p in res.data}
+        # post 5 (closed) is owned by jane@example.com
+        self.assertIn(5, returned_ids)
+
+    def test_mine_param_excludes_other_users_posts(self):
+        """mine=true does not include posts owned by other users."""
+        other = User.objects.exclude(email="jane@example.com").first()
+        other_posts = Post.objects.filter(owner=other)
+        res = self.client.get(POSTS_URL, {"mine": "true"})
+
+        returned_ids = {p["id"] for p in res.data}
+        for post in other_posts:
+            self.assertNotIn(post.id, returned_ids)

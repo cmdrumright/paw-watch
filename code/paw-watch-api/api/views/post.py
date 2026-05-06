@@ -236,11 +236,14 @@ class PostViewSet(ViewSet):
             include_closed (bool): pass `true` to include reunited and closed posts.
         """
         include_closed = request.query_params.get("include_closed", "false").lower() == "true"
+        mine = request.query_params.get("mine", "false").lower() == "true"
 
         qs = Post.objects.select_related("owner").prefetch_related(
             "post_photos__photo", "post_labels__label"
         )
-        if not include_closed:
+        if mine:
+            qs = qs.filter(owner=request.user)
+        if not include_closed and not mine:
             qs = qs.exclude(status__in=[Post.Status.REUNITED, Post.Status.CLOSED])
 
         serializer = PostListSerializer(qs, many=True, context={"request": request})
