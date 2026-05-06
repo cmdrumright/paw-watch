@@ -31,6 +31,8 @@ export default function EditPostPage() {
     body.append("location_lng", String(form.location_lng))
     body.append("location_label", form.location_label)
     form.photos.forEach((f) => body.append("photos", f))
+    form.delete_photo_ids.forEach((id) => body.append("delete_photo_ids", String(id)))
+    body.append("replace_labels", "true")
     form.label_ids.forEach((lid) => body.append("label_ids", String(lid)))
 
     try {
@@ -83,6 +85,7 @@ export default function EditPostPage() {
       title="Edit Post"
       submitLabel="Save"
       initialValues={initialValues}
+      initialPhotos={post.photos.slice().sort((a, b) => a.order - b.order).map((p) => ({ id: p.id, url: p.url }))}
       initialPin={[post.location_lat, post.location_lng]}
       onSubmit={handleSubmit}
       onCancel={() => router.push(`/posts/${id}`)}

@@ -29,6 +29,7 @@ export interface PostFormState {
   description: string
   incident_date: string
   photos: File[]
+  delete_photo_ids: number[]
   label_ids: number[]
   location_lat: number | null
   location_lng: number | null
@@ -44,6 +45,7 @@ export const INITIAL_POST_FORM: PostFormState = {
   description: "",
   incident_date: new Date().toISOString().slice(0, 10),
   photos: [],
+  delete_photo_ids: [],
   label_ids: [],
   location_lat: null,
   location_lng: null,
@@ -79,6 +81,7 @@ interface Props {
   title: string
   submitLabel: string
   initialValues?: Partial<PostFormState>
+  initialPhotos?: { id: number; url: string }[]
   initialPin?: [number, number]
   onSubmit: (form: PostFormState) => Promise<Record<string, string[]> | void>
   onCancel: () => void
@@ -88,6 +91,7 @@ export default function PostForm({
   title,
   submitLabel,
   initialValues,
+  initialPhotos,
   initialPin,
   onSubmit,
   onCancel,
@@ -96,11 +100,19 @@ export default function PostForm({
     ...INITIAL_POST_FORM,
     ...initialValues,
   })
+  const [existingPhotos, setExistingPhotos] = useState<{ id: number; url: string }[]>(
+    initialPhotos ?? []
+  )
   const [errors, setErrors] = useState<Record<string, string[]>>({})
   const [submitting, setSubmitting] = useState(false)
 
   function set<K extends keyof PostFormState>(key: K, value: PostFormState[K]) {
     setForm((f) => ({ ...f, [key]: value }))
+  }
+
+  function removeExistingPhoto(id: number) {
+    setExistingPhotos((prev) => prev.filter((p) => p.id !== id))
+    set("delete_photo_ids", [...form.delete_photo_ids, id])
   }
 
   async function handleSubmit() {
@@ -251,7 +263,33 @@ export default function PostForm({
             <span className="text-sm font-medium text-gray-700">
               Photos <span className="text-gray-400 font-normal">(up to 4, 5 MB each)</span>
             </span>
-            <PhotoUpload onChange={(files) => set("photos", files)} />
+            {existingPhotos.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {existingPhotos.map((p) => (
+                  <div key={p.id} className="relative">
+                    <img
+                      src={p.url}
+                      alt="existing photo"
+                      className="w-20 h-20 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeExistingPhoto(p.id)}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center leading-none hover:bg-red-600 transition-colors"
+                      aria-label="Remove photo"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {existingPhotos.length < 4 && (
+              <PhotoUpload
+                maxSlots={4 - existingPhotos.length}
+                onChange={(files) => set("photos", files)}
+              />
+            )}
           </div>
 
           {/* Labels */}

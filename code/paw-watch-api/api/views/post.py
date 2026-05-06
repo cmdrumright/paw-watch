@@ -253,6 +253,9 @@ class PostViewSet(ViewSet):
         """Partially update a post. Owner only.
 
         Accepts multipart/form-data with any subset of post fields.
+        Optional photo management:
+          - delete_photo_ids: list of photo IDs to remove from this post
+          - photos: new image files to append (total kept + new must be <= 4)
         Returns the updated post detail on success (200), or 403 if the
         requesting user is not the post owner.
         """
@@ -272,15 +275,37 @@ class PostViewSet(ViewSet):
 
         validated = serializer.validated_data
         label_ids = validated.pop("label_ids", None)
+        replace_labels = "replace_labels" in request.data
 
         for field, value in validated.items():
             setattr(post, field, value)
         post.save()
 
-        if label_ids is not None:
+        if label_ids is not None or replace_labels:
             post.post_labels.all().delete()
-            for label_id in label_ids:
+            for label_id in (label_ids or []):
                 PostLabel.objects.create(post=post, label_id=label_id)
+
+        # Handle photo deletions
+        delete_ids_raw = request.data.getlist("delete_photo_ids")
+        if delete_ids_raw:
+            delete_ids = [int(x) for x in delete_ids_raw if x.isdigit()]
+            PostPhoto.objects.filter(post=post, photo_id__in=delete_ids).delete()
+
+        # Handle new photo uploads
+        new_files = request.FILES.getlist("photos")
+        if new_files:
+            current_count = post.post_photos.count()
+            if current_count + len(new_files) > 4:
+                return Response(
+                    {"photos": [f"Adding {len(new_files)} photo(s) would exceed the 4-photo limit."]},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            next_order = current_count
+            for file in new_files:
+                photo = Photo.objects.create(file_path=file, order=next_order)
+                PostPhoto.objects.create(post=post, photo=photo)
+                next_order += 1
 
         post_with_related = Post.objects.select_related("owner").prefetch_related(
             "post_photos__photo", "post_labels__label"

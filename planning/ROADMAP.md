@@ -265,6 +265,17 @@
 - Test as owner, non-owner, and unauthenticated user
 - Check photo upload, map pin picking, and comment flows end to end
 
+### TICKET-046 · Bug: photo editing silently ignored on post edit
+- `partial_update` in `PostViewSet` never processes uploaded photo files — any photos submitted via the edit form are discarded
+- Add photo management to the edit flow: show existing photo thumbnails, allow individual deletion, allow new uploads
+- API: update `partial_update` to handle `photos` (new files) and `delete_photo_ids` (IDs to remove)
+- Client: pre-populate the photo section in `PostForm` with existing photos when editing
+
+### TICKET-047 · Bug: clearing all labels on post edit has no effect
+- When all labels are deselected, `form.label_ids` is `[]` and nothing is appended to FormData
+- API receives no `label_ids` key and treats it as "unchanged," so existing labels persist
+- Fix: add a `replace_labels=true` marker to the edit FormData submission; check for it in `partial_update` to distinguish "no change" from "intentionally empty"
+
 ### TICKET-040 · Bug fixes & ship
 - Fix any issues surfaced during QA
 - Confirm Django server and Next.js app start cleanly from scratch
@@ -283,4 +294,5 @@
 | 5 | 024 – 029 | 6 |
 | 6 | 030 – 034 | 5 |
 | 7 | 035 – 040, 045 | 7 |
-| **Total** | | **45** |
+| QA bugs | 046 – 047 | 2 |
+| **Total** | | **47** |
