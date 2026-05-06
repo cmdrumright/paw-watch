@@ -3,17 +3,19 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
-import { clearTokens, getDisplayName, logoutRequest } from "@/lib/auth"
+import { clearTokens, getDisplayName, isAdmin, logoutRequest } from "@/lib/auth"
 
 export default function NavBar() {
   const pathname = usePathname()
   const router = useRouter()
   const [displayName, setDisplayName] = useState("")
+  const [admin, setAdmin] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setDisplayName(getDisplayName())
+    setAdmin(isAdmin())
   }, [])
 
   useEffect(() => {
@@ -99,6 +101,15 @@ export default function NavBar() {
               >
                 My Posts
               </Link>
+              {admin && (
+                <Link
+                  href="/admin/labels"
+                  onClick={() => setDropdownOpen(false)}
+                  className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                  Manage Labels
+                </Link>
+              )}
               <div className="border-t border-gray-100 mt-1 pt-1">
                 <button
                   onClick={handleLogout}

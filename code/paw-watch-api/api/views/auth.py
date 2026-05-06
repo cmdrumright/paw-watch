@@ -17,6 +17,7 @@ def _token_pair(user):
         "refresh": str(refresh),
         "display_name": user.display_name,
         "user_id": user.id,
+        "role": user.role,
     }
 
 
