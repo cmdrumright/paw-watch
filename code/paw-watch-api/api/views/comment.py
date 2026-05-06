@@ -104,7 +104,9 @@ class CommentViewSet(ViewSet):
     def destroy(self, request, pk=None):
         """Delete a comment. Author or admin only. Returns 204 on success."""
         try:
-            comment = Comment.objects.select_related("author").get(pk=pk)
+            comment = Comment.objects.select_related("author").prefetch_related(
+                "comment_photos__photo"
+            ).get(pk=pk)
         except Comment.DoesNotExist:
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -116,7 +118,11 @@ class CommentViewSet(ViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
+        photos = [cp.photo for cp in comment.comment_photos.all()]
         comment.delete()
+        for photo in photos:
+            photo.file_path.delete(save=False)
+            photo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def confirm_sighting(self, request, pk=None):

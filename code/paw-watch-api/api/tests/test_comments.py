@@ -6,6 +6,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from api.models import Comment, CommentPhoto, Post
+from api.tests.base import TempMediaMixin
 
 User = get_user_model()
 
@@ -87,7 +88,7 @@ class CommentListTest(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-class CommentCreateTest(APITestCase):
+class CommentCreateTest(TempMediaMixin, APITestCase):
     def setUp(self):
         self.user = _make_user()
         self.post = _make_post(self.user)
