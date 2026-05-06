@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import { apiGet, apiDelete, apiPatch } from "@/lib/api"
-import { getUserId } from "@/lib/auth"
+import { getUserId, isAdmin } from "@/lib/auth"
 import dynamic from "next/dynamic"
 import CommentForm from "@/components/CommentForm"
 import type { PostDetail, Comment } from "@/lib/types"
@@ -58,11 +58,13 @@ function ConfirmModal({
 function CommentThread({
   comments,
   isPostOwner,
+  isAdmin,
   onDelete,
   onConfirm,
 }: {
   comments: Comment[]
   isPostOwner: boolean
+  isAdmin: boolean
   onDelete: (id: number) => void
   onConfirm: (id: number) => void
 }) {
@@ -94,7 +96,7 @@ function CommentThread({
                     day: "numeric",
                   })}
                 </span>
-                {currentUserId === c.author.id && (
+                {(currentUserId === c.author.id || isAdmin) && (
                   <button
                     type="button"
                     onClick={() => onDelete(c.id)}
@@ -227,6 +229,7 @@ export default function PostDetailPage() {
   }
 
   const isOwner = getUserId() === post.owner.id
+  const admin = isAdmin()
   const typeBadgeClass =
     post.type === "lost"
       ? "bg-red-100 text-red-700"
@@ -346,14 +349,16 @@ export default function PostDetailPage() {
             <span className="text-sm text-gray-500">
               Posted by <span className="font-medium text-gray-700">{post.owner.display_name}</span>
             </span>
-            {isOwner && (
+            {(isOwner || admin) && (
               <div className="flex gap-2">
-                <Link
-                  href={`/posts/${post.id}/edit`}
-                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  Edit Post
-                </Link>
+                {isOwner && (
+                  <Link
+                    href={`/posts/${post.id}/edit`}
+                    className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Edit Post
+                  </Link>
+                )}
                 <button
                   type="button"
                   onClick={() => setShowConfirm(true)}
@@ -413,6 +418,7 @@ export default function PostDetailPage() {
                 <CommentThread
                   comments={comments}
                   isPostOwner={isOwner}
+                  isAdmin={admin}
                   onDelete={handleDeleteComment}
                   onConfirm={handleConfirmSighting}
                 />
