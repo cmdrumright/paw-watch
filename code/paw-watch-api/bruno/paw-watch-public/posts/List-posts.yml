@@ -1,0 +1,47 @@
+info:
+  name: List posts
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{base-url}}/api/posts"
+  headers:
+    - name: Authorization
+      value: "Bearer {{accessToken}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+tests: |
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns an array", function() {
+    expect(res.body).to.be.an("array");
+  });
+
+  test("excludes reunited and closed posts by default", function() {
+    const statuses = res.body.map(p => p.status);
+    expect(statuses).to.not.include("reunited");
+    expect(statuses).to.not.include("closed");
+  });
+
+  test("each post has required fields", function() {
+    res.body.forEach(post => {
+      expect(post).to.have.property("id");
+      expect(post).to.have.property("type");
+      expect(post).to.have.property("status");
+      expect(post).to.have.property("pet_name");
+      expect(post).to.have.property("species");
+      expect(post).to.have.property("location_label");
+      expect(post).to.have.property("owner_display_name");
+      expect(post).to.have.property("comment_count");
+      expect(post).to.have.property("first_photo_url");
+    });
+  });

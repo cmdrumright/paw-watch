@@ -1,0 +1,8 @@
+name: test
+variables:
+  - name: base-url
+    value: http://localhost:8000
+  - name: accessToken
+    value: ""
+  - name: refreshToken
+    value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3ODUzMTY1OSwiaWF0IjoxNzc3OTI2ODU5LCJqdGkiOiJlZDUxYTFhZTE0YWM0MjZmYmYyZWNhM2YyMDc5ZWI0ZSIsInVzZXJfaWQiOiIxIn0.cQNQQmmt9Sj6f01PqGwWicFFd_pXq0N6uvEzSfoMsRM

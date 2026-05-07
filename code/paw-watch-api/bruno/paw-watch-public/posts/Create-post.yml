@@ -1,0 +1,53 @@
+info:
+  name: Create post
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{base-url}}/api/posts"
+  headers:
+    - name: Authorization
+      value: Bearer {{accessToken}}
+  body:
+    type: multipart-form
+    data:
+      - name: type
+        type: text
+        value: lost
+      - name: species
+        type: text
+        value: dog
+      - name: color
+        type: text
+        value: brown
+      - name: description
+        type: text
+        value: lost dog
+      - name: incident_date
+        type: text
+        value: 2026-05-01
+      - name: location_lat
+        type: text
+        value: "36.5298"
+      - name: location_lng
+        type: text
+        value: "-87.3595"
+      - name: location_label
+        type: text
+        value: Clarksville, TN
+      - name: pet_name
+        type: text
+        value: Max
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: bru.setEnvVar("createdPostId", String(res.body.id));
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

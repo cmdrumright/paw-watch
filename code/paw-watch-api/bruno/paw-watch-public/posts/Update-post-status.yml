@@ -1,0 +1,38 @@
+info:
+  name: Update post status
+  type: http
+  seq: 11
+
+http:
+  method: PATCH
+  url: "{{base-url}}/api/posts/{{createdPostId}}/status"
+  headers:
+    - name: Authorization
+      value: "Bearer {{accessToken}}"
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {"status": "reunited"}
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+tests: |
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("post status updated to reunited", function() {
+    expect(res.body.status).to.equal("reunited");
+  });
+
+  test("returns full post detail", function() {
+    expect(res.body).to.have.property("pet_name");
+    expect(res.body).to.have.property("owner");
+  });

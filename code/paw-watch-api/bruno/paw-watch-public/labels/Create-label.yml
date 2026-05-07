@@ -1,0 +1,39 @@
+info:
+  name: Create label
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{base-url}}/api/labels"
+  headers:
+    - name: Authorization
+      value: "Bearer {{accessToken}}"
+  auth: inherit
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Test Label"
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: bru.setEnvVar("createdLabelId", String(res.body.id));
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+tests: |
+  test("status is 201", function() {
+    expect(res.status).to.equal(201);
+  });
+
+  test("returns the new label", function() {
+    expect(res.body.name).to.equal("Test Label");
+    expect(res.body).to.have.property("id");
+  });

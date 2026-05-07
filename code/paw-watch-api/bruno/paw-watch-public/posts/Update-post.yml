@@ -1,0 +1,52 @@
+info:
+  name: Update post
+  type: http
+  seq: 7
+
+http:
+  method: PATCH
+  url: "{{base-url}}/api/posts/{{createdPostId}}"
+  headers:
+    - name: Authorization
+      value: "Bearer {{accessToken}}"
+  auth: inherit
+  body:
+    type: multipart-form
+    data:
+      - name: pet_name
+        type: text
+        value: Updated Name
+      - name: status
+        type: text
+        value: sighting_reported
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+tests: |
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns updated pet_name", function() {
+    expect(res.body.pet_name).to.equal("Updated Name");
+  });
+
+  test("returns updated status", function() {
+    expect(res.body.status).to.equal("sighting_reported");
+  });
+
+  test("returns full post detail shape", function() {
+    const required = [
+      "id", "type", "status", "pet_name", "species", "breed", "color",
+      "description", "incident_date", "location_lat", "location_lng",
+      "location_label", "created_at", "updated_at", "owner", "photos",
+      "comment_count"
+    ];
+    required.forEach(field => {
+      expect(res.body).to.have.property(field);
+    });
+  });

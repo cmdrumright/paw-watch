@@ -1,0 +1,19 @@
+[
+  {"model": "api.label", "pk": 1,  "fields": {"name": "Blind",                    "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 2,  "fields": {"name": "Deaf",                     "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 3,  "fields": {"name": "Distinctive Markings",     "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 4,  "fields": {"name": "Friendly",                 "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 5,  "fields": {"name": "Good with Kids",           "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 6,  "fields": {"name": "Good with Other Pets",     "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 7,  "fields": {"name": "Injured",                  "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 8,  "fields": {"name": "May Bite or Scratch",      "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 9,  "fields": {"name": "Microchipped",             "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 10, "fields": {"name": "Near Busy Road",           "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 11, "fields": {"name": "Needs Medication",         "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 12, "fields": {"name": "Neutered / Spayed",        "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 13, "fields": {"name": "Reward Offered",           "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 14, "fields": {"name": "Senior Pet",               "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 15, "fields": {"name": "Shy / Timid",              "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 16, "fields": {"name": "Urgent",                   "created_at": "2026-01-01T00:00:00Z"}},
+  {"model": "api.label", "pk": 17, "fields": {"name": "Wearing Collar & Tags",    "created_at": "2026-01-01T00:00:00Z"}}
+]
