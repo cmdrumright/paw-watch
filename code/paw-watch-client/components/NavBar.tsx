@@ -45,8 +45,8 @@ export default function NavBar() {
   return (
     <>
       {/* Top bar */}
-      <header className="relative z-10 flex items-center justify-between px-4 h-14 bg-white border-b border-gray-200 shrink-0">
-        <Link href="/map" className="text-base font-bold text-gray-900 whitespace-nowrap">
+      <header className="relative z-10 flex items-center justify-between px-4 h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shrink-0">
+        <Link href="/map" className="text-base font-bold text-gray-900 dark:text-gray-100 whitespace-nowrap">
           <span className="hidden sm:inline">PawWatch Clarksville</span>
           <span className="sm:hidden">🐾 PawWatch</span>
         </Link>
@@ -57,14 +57,14 @@ export default function NavBar() {
             isMapView ? (
               <Link
                 href="/list"
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 List View
               </Link>
             ) : (
               <Link
                 href="/map"
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 Map View
               </Link>
@@ -87,22 +87,22 @@ export default function NavBar() {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen((o) => !o)}
-              className="flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-1.5 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               <span>👤</span>
               <span className="hidden sm:inline max-w-[120px] truncate">{displayName || "Account"}</span>
-              <span className="text-xs text-gray-400">▾</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">▾</span>
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-1 w-44 rounded-xl border border-gray-200 bg-white shadow-lg py-1 z-50">
-                <div className="px-3 py-2 text-sm font-semibold text-gray-800 truncate border-b border-gray-100">
+              <div className="absolute right-0 mt-1 w-44 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg py-1 z-50">
+                <div className="px-3 py-2 text-sm font-semibold text-gray-800 dark:text-gray-200 truncate border-b border-gray-100 dark:border-gray-800">
                   {displayName}
                 </div>
                 <Link
                   href="/my-posts"
                   onClick={() => setDropdownOpen(false)}
-                  className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   My Posts
                 </Link>
@@ -110,18 +110,18 @@ export default function NavBar() {
                   <Link
                     href="/admin/labels"
                     onClick={() => setDropdownOpen(false)}
-                    className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     Manage Labels
                   </Link>
                 )}
-                <div className="px-3 py-2 border-t border-gray-100 mt-1">
+                <div className="px-3 py-2 border-t border-gray-100 dark:border-gray-800 mt-1">
                   <ThemeToggle />
                 </div>
-                <div className="border-t border-gray-100">
+                <div className="border-t border-gray-100 dark:border-gray-800">
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-50"
+                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     Log Out
                   </button>
@@ -133,7 +133,7 @@ export default function NavBar() {
       </header>
 
       {/* Mobile bottom nav */}
-      <nav className="sm:hidden fixed bottom-0 inset-x-0 z-20 bg-white border-t border-gray-200 flex h-14 shrink-0">
+      <nav className="sm:hidden fixed bottom-0 inset-x-0 z-20 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex h-14 shrink-0">
         <Link
           href="/map"
           className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors ${

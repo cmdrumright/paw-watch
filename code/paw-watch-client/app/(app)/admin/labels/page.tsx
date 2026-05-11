@@ -39,7 +39,7 @@ function LabelRow({
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 py-2.5 border-b border-gray-100 last:border-0">
+    <div className="flex items-center justify-between gap-3 py-2.5 border-b border-gray-100 dark:border-gray-800 last:border-0">
       <div className="flex-1 min-w-0">
         {editing ? (
           <input
@@ -48,13 +48,13 @@ function LabelRow({
             onChange={(e) => setValue(e.target.value)}
             onBlur={commit}
             onKeyDown={handleKeyDown}
-            className="w-full rounded border border-blue-400 px-2 py-0.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded border border-blue-400 px-2 py-0.5 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         ) : (
           <button
             type="button"
             onClick={startEdit}
-            className="text-sm text-gray-800 hover:text-blue-600 transition-colors text-left"
+            className="text-sm text-gray-800 dark:text-gray-200 hover:text-blue-600 transition-colors text-left"
             title="Click to rename"
           >
             {label.name}
@@ -65,7 +65,7 @@ function LabelRow({
       <div className="flex items-center gap-2 shrink-0">
         {confirmDelete ? (
           <>
-            <span className="text-xs text-gray-500">Remove from all posts?</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">Remove from all posts?</span>
             <button
               type="button"
               onClick={() => onDelete(label.id)}
@@ -158,11 +158,11 @@ export default function AdminLabelsPage() {
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-lg mx-auto px-4 py-8">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">Manage Labels</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">Manage Labels</h1>
 
-        <div className="bg-white border border-gray-200 rounded-xl px-4 mb-6">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 mb-6">
           {labels.length === 0 ? (
-            <p className="text-sm text-gray-400 py-4">No labels yet.</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 py-4">No labels yet.</p>
           ) : (
             labels.map((label) => (
               <LabelRow
@@ -182,7 +182,7 @@ export default function AdminLabelsPage() {
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="New label name"
-              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
               type="submit"

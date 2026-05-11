@@ -31,10 +31,10 @@ export default function MapPage() {
       <LeafletMap posts={posts} />
       {loaded && posts.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center z-[1000] pointer-events-none">
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 px-6 py-5 max-w-xs text-center pointer-events-auto">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 px-6 py-5 max-w-xs text-center pointer-events-auto">
             <p className="text-2xl mb-2">🐾</p>
-            <p className="text-sm font-semibold text-gray-800 mb-1">No active posts nearby</p>
-            <p className="text-xs text-gray-500 mb-4">Be the first to post a lost or found pet in your area.</p>
+            <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">No active posts nearby</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Be the first to post a lost or found pet in your area.</p>
             <Link
               href="/posts/new"
               className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
