@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css"
 import L from "leaflet"
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet"
 import type { Comment } from "@/lib/types"
+import { useTheme, mapTileUrl, MAP_ATTRIBUTION } from "@/lib/theme"
 
 function pinIcon(color: string, ring = "white") {
   return L.divIcon({
@@ -34,6 +35,7 @@ interface Props {
 
 export default function PostDetailMap({ postLat, postLng, postType, petName, comments }: Props) {
   const sightings = comments.filter((c) => c.sighting_lat != null)
+  const { resolved } = useTheme()
 
   return (
     <div className="relative h-full w-full">
@@ -44,8 +46,11 @@ export default function PostDetailMap({ postLat, postLng, postType, petName, com
         scrollWheelZoom
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          key={resolved}
+          attribution={MAP_ATTRIBUTION}
+          url={mapTileUrl(resolved)}
+          tileSize={512}
+          zoomOffset={-1}
         />
 
         {/* Original post pin */}

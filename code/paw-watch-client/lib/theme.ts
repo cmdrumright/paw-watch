@@ -2,6 +2,20 @@
 
 import { useEffect, useState } from "react"
 
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+
+const MAPBOX_STYLES = {
+  light: "mapbox/streets-v12",
+  dark: "mapbox/dark-v11",
+}
+
+export function mapTileUrl(resolved: "light" | "dark"): string {
+  return `https://api.mapbox.com/styles/v1/${MAPBOX_STYLES[resolved]}/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`
+}
+
+export const MAP_ATTRIBUTION =
+  '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+
 export type Theme = "system" | "light" | "dark"
 
 const STORAGE_KEY = "theme"

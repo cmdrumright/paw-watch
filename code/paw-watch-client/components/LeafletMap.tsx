@@ -5,6 +5,7 @@ import L from "leaflet"
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet"
 import Link from "next/link"
 import type { PostSummary } from "@/lib/types"
+import { useTheme, mapTileUrl, MAP_ATTRIBUTION } from "@/lib/theme"
 
 export type { PostSummary }
 
@@ -39,6 +40,8 @@ interface Props {
 }
 
 export default function LeafletMap({ posts }: Props) {
+  const { resolved } = useTheme()
+
   return (
     <div className="relative h-full w-full">
       <MapContainer
@@ -48,8 +51,11 @@ export default function LeafletMap({ posts }: Props) {
         scrollWheelZoom
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          key={resolved}
+          attribution={MAP_ATTRIBUTION}
+          url={mapTileUrl(resolved)}
+          tileSize={512}
+          zoomOffset={-1}
         />
         {posts.map((post) => (
           <Marker
