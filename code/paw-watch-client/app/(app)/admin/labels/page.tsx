@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api"
 import { isAdmin } from "@/lib/auth"
@@ -18,11 +18,9 @@ function LabelRow({
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState(label.name)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
 
   function startEdit() {
     setEditing(true)
-    setTimeout(() => inputRef.current?.focus(), 0)
   }
 
   function commit() {
@@ -45,7 +43,7 @@ function LabelRow({
       <div className="flex-1 min-w-0">
         {editing ? (
           <input
-            ref={inputRef}
+            autoFocus
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onBlur={commit}

@@ -53,10 +53,7 @@ class PostListSerializer(serializers.ModelSerializer):
 
     def get_comment_count(self, obj):
         """Return the number of comments on this post."""
-        try:
-            return obj.comments.count()
-        except AttributeError:
-            return 0
+        return obj.comments.count()
 
 
 class PhotoSerializer(serializers.ModelSerializer):
@@ -125,10 +122,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
     def get_comment_count(self, obj):
         """Return the number of comments on this post."""
-        try:
-            return obj.comments.count()
-        except AttributeError:
-            return 0
+        return obj.comments.count()
 
 
 class PostCreateSerializer(serializers.Serializer):
