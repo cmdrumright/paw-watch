@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { clearTokens, getDisplayName, isAdmin, logoutRequest } from "@/lib/auth"
+import ThemeToggle from "@/components/ThemeToggle"
 
 export default function NavBar() {
   const pathname = usePathname()
@@ -114,7 +115,10 @@ export default function NavBar() {
                     Manage Labels
                   </Link>
                 )}
-                <div className="border-t border-gray-100 mt-1 pt-1">
+                <div className="px-3 py-2 border-t border-gray-100 mt-1">
+                  <ThemeToggle />
+                </div>
+                <div className="border-t border-gray-100">
                   <button
                     onClick={handleLogout}
                     className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-50"
