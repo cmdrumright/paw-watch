@@ -27,8 +27,10 @@ export default function EditPostPage() {
     body.append("color", form.color.trim())
     body.append("description", form.description.trim())
     body.append("incident_date", form.incident_date)
-    body.append("location_lat", String(form.location_lat))
-    body.append("location_lng", String(form.location_lng))
+    if (form.location_lat !== null && form.location_lng !== null) {
+      body.append("location_lat", String(form.location_lat))
+      body.append("location_lng", String(form.location_lng))
+    }
     body.append("location_label", form.location_label)
     form.photos.forEach((f) => body.append("photos", f))
     form.delete_photo_ids.forEach((id) => body.append("delete_photo_ids", String(id)))
