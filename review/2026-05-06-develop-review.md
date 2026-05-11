@@ -1,7 +1,31 @@
 # Code Review — develop branch
 **Date:** 2026-05-06
+**Reviewed:** 2026-05-10
 **Branch:** develop → main
 **Scope:** Full codebase review (all commits since branch split from main)
+
+---
+
+## Outcomes
+
+| # | Item | Decision |
+|---|---|---|
+| 1 | Hardcoded `SECRET_KEY` | ✅ Fixed |
+| 2 | No photo upload validation | 🎫 [Issue #61](https://github.com/cmdrumright/paw-watch/issues/61) |
+| 3 | Token refresh never attempted | 🎫 [Issue #62](https://github.com/cmdrumright/paw-watch/issues/62) |
+| 4 | Tokens in localStorage / admin check | ⏭ Skipped (demo only) |
+| 5 | Duplicate `get_labels` / `get_comment_count` | ⏭ Skipped |
+| 6 | Duplicate `validate_label_ids` | ⏭ Skipped |
+| 7 | Duplicate `OwnerSerializer` / `CommentAuthorSerializer` | ⏭ Skipped |
+| 8 | Repeated prefetch chain | ⏭ Skipped |
+| 9 | `views/post.py` too large | ⏭ Skipped (matches project conventions) |
+| 10 | Inline components in `PostDetailPage` | 🎫 [Issue #63](https://github.com/cmdrumright/paw-watch/issues/63) |
+| 11 | Edit form sends `"null"` coordinates | 🎫 [Issue #64](https://github.com/cmdrumright/paw-watch/issues/64) |
+| 12 | Label list has no ordering | 🎫 [Issue #65](https://github.com/cmdrumright/paw-watch/issues/65) |
+| 13 | Silent failure on post actions | 🎫 [Issue #66](https://github.com/cmdrumright/paw-watch/issues/66) |
+| 14 | `setTimeout` focus hack in `LabelRow` | 🎫 [Issue #67](https://github.com/cmdrumright/paw-watch/issues/67) |
+| 15 | Raw status code error strings | 🎫 [Issue #68](https://github.com/cmdrumright/paw-watch/issues/68) |
+| 16 | Unnecessary `try/except` in `get_comment_count` | 🎫 [Issue #69](https://github.com/cmdrumright/paw-watch/issues/69) |
 
 ---
 

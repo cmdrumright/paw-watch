@@ -6,9 +6,8 @@
 
 ## Hosting
 
-**Frontend (Next.js):** Vercel
-- Zero-config Next.js deploy, CDN, preview URLs per branch
-- Deploys from GitHub on push
+**Frontend (Next.js):** Railway
+- Deployed as a Railway service from the same project as the API
 
 **Backend (Django):** Railway (web service)
 - Simple deploys from GitHub, env vars UI, no DevOps setup required
@@ -33,18 +32,19 @@
 - [x] Point `DATABASES` `NAME` at the persistent volume path (`/data/db.sqlite3`)
 
 ### Infrastructure
-- [ ] Create Railway project
-- [ ] Add a persistent volume to the web service, mounted at `/data`
-- [ ] Add a second Railway service (cron type), same repo, command: `python manage.py reset_demo`, schedule: `0 0 * * *`
-- [ ] Set all env vars in Railway dashboard (see table below)
-- [ ] Connect GitHub repo to Railway for auto-deploy on push
-- [ ] Create Vercel project, connect GitHub repo
-- [ ] Set `NEXT_PUBLIC_API_URL` in Vercel env vars (Railway web service URL)
-- [ ] Set `ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS` to final deployed domains
+- [x] Create Railway project
+- [x] Add a persistent volume to the web service, mounted at `/data`
+- [x] Set all env vars in Railway dashboard
+- [x] Connect GitHub repo to Railway for auto-deploy on push
+- [x] Frontend deployed on Railway
+- [x] Set `NEXT_PUBLIC_API_URL` in frontend service env vars
+- [x] Set `ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS` to deployed domains
+- [ ] Add daily reset cron job — deferred, reset manually via Railway shell: `python manage.py reset_demo`
 
 ### App (first deploy)
-- [ ] Run `python manage.py reset_demo` once manually via Railway shell to initialize the DB
-- [ ] Verify fixture data loaded (users, labels, posts)
+- [x] Run `python manage.py reset_demo` to initialize the DB
+- [x] Verify fixture data loaded (users, labels, posts)
+- [x] Verify media files served correctly
 
 ---
 
@@ -55,11 +55,11 @@
 |---|---|
 | `DJANGO_SECRET_KEY` | Random 50+ char secret |
 | `DEBUG` | `false` |
-| `ALLOWED_HOSTS` | Railway-assigned domain (e.g. `paw-watch-api.up.railway.app`) |
-| `CORS_ALLOWED_ORIGINS` | Vercel frontend URL (e.g. `https://paw-watch.vercel.app`) |
+| `ALLOWED_HOSTS` | Railway-assigned domain |
+| `CORS_ALLOWED_ORIGINS` | Railway frontend service URL |
 | `DB_PATH` | `/data/db.sqlite3` (matches the Railway persistent volume mount point) |
 
-### Next.js (Vercel)
+### Next.js (Railway)
 | Variable | Description |
 |---|---|
-| `NEXT_PUBLIC_API_URL` | Full URL of the Railway Django API |
+| `NEXT_PUBLIC_API_URL` | Full URL of the Railway Django API service |
