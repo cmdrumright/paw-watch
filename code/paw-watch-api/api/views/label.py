@@ -21,7 +21,7 @@ class LabelViewSet(ViewSet):
 
     def list(self, request):
         """Return all labels ordered by name. Available to any authenticated user."""
-        labels = Label.objects.all()
+        labels = Label.objects.order_by("name")
         return Response(LabelSerializer(labels, many=True).data)
 
     def create(self, request):
