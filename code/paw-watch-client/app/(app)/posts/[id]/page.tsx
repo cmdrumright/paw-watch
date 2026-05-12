@@ -7,6 +7,8 @@ import { apiGet, apiDelete, apiPatch } from "@/lib/api"
 import { getUserId, isAdmin } from "@/lib/auth"
 import dynamic from "next/dynamic"
 import CommentForm from "@/components/CommentForm"
+import ConfirmModal from "@/components/ConfirmModal"
+import CommentThread from "@/components/CommentThread"
 import type { PostDetail, Comment } from "@/lib/types"
 
 const PostDetailMap = dynamic(() => import("@/components/PostDetailMap"), {
@@ -17,138 +19,6 @@ const PostDetailMap = dynamic(() => import("@/components/PostDetailMap"), {
     </div>
   ),
 })
-
-function ConfirmModal({
-  onConfirm,
-  onCancel,
-  deleting,
-}: {
-  onConfirm: () => void
-  onCancel: () => void
-  deleting: boolean
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl p-6 max-w-sm w-full mx-4 border border-gray-200 dark:border-gray-700">
-        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">Delete this post?</h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-5">
-          This can&apos;t be undone. All photos and comments will be permanently removed.
-        </p>
-        <div className="flex gap-3">
-          <button
-            onClick={onConfirm}
-            disabled={deleting}
-            className="flex-1 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
-          >
-            {deleting ? "Deleting…" : "Delete"}
-          </button>
-          <button
-            onClick={onCancel}
-            disabled={deleting}
-            className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function CommentThread({
-  comments,
-  isPostOwner,
-  isAdmin,
-  onDelete,
-  onConfirm,
-}: {
-  comments: Comment[]
-  isPostOwner: boolean
-  isAdmin: boolean
-  onDelete: (id: number) => void
-  onConfirm: (id: number) => void
-}) {
-  const currentUserId = getUserId()
-
-  return (
-    <div className="flex flex-col gap-4">
-      {comments.map((c) => (
-        <div key={c.id} className="flex gap-3">
-          {/* Avatar */}
-          <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0 flex items-center justify-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
-            {c.author.display_name.charAt(0)}
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-baseline justify-between gap-2">
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{c.author.display_name}</span>
-                {c.is_confirmed_sighting && (
-                  <span className="text-xs bg-green-100 text-green-700 border border-green-200 rounded-full px-1.5 py-0.5 font-medium">
-                    ✓ Confirmed
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xs text-gray-400">
-                  {new Date(c.created_at).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </span>
-                {(currentUserId === c.author.id || isAdmin) && (
-                  <button
-                    type="button"
-                    onClick={() => onDelete(c.id)}
-                    className="text-xs text-red-400 hover:text-red-600 transition-colors"
-                    aria-label="Delete comment"
-                  >
-                    🗑
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <p className="text-sm text-gray-700 dark:text-gray-300 mt-0.5 whitespace-pre-wrap">{c.body}</p>
-
-            {/* Photos */}
-            {c.photos.length > 0 && (
-              <div className="flex gap-2 mt-2">
-                {c.photos.map((p) => (
-                  <img
-                    key={p.id}
-                    src={p.url}
-                    alt="comment photo"
-                    className="h-20 w-20 object-cover rounded-lg"
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Sighting location + confirm button */}
-            {c.sighting_lat != null && (
-              <div className="flex items-center gap-3 mt-1">
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <span>📍</span>
-                  <span>{c.sighting_lat.toFixed(4)}, {c.sighting_lng?.toFixed(4)}</span>
-                </p>
-                {isPostOwner && !c.is_confirmed_sighting && (
-                  <button
-                    type="button"
-                    onClick={() => onConfirm(c.id)}
-                    className="text-xs text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-medium transition-colors"
-                  >
-                    ✓ Confirm Sighting
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 export default function PostDetailPage() {
   const router = useRouter()
