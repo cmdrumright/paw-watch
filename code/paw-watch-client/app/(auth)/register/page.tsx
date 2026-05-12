@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { registerRequest, setTokens } from "@/lib/auth"
+import { ApiError } from "@/lib/api"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -23,8 +24,7 @@ export default function RegisterPage() {
       setTokens(access, refresh, display_name, user_id, role)
       router.push("/map")
     } catch (err: unknown) {
-      const status = err instanceof Error ? err.message : ""
-      if (status === "400") {
+      if (err instanceof ApiError && err.status === 400) {
         setError("An account with this email already exists.")
       } else {
         setError("Something went wrong. Please try again.")
