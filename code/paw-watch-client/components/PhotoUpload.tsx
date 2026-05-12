@@ -61,7 +61,7 @@ export default function PhotoUpload({ onChange, maxSlots = 4 }: Props) {
             <img
               src={slot.preview}
               alt={`Photo ${i + 1}`}
-              className="w-20 h-20 rounded-lg object-cover border border-gray-200"
+              className="w-20 h-20 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
             />
             <button
               type="button"
@@ -79,7 +79,7 @@ export default function PhotoUpload({ onChange, maxSlots = 4 }: Props) {
             key={i}
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-2xl hover:border-blue-400 hover:text-blue-400 transition-colors"
+            className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-400 dark:text-gray-500 text-2xl hover:border-blue-400 hover:text-blue-400 transition-colors"
             aria-label="Add photo"
           >
             +

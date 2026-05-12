@@ -36,7 +36,7 @@ export default function LoginPage() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="email" className="text-sm font-medium text-gray-700">
+        <label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Email
         </label>
         <input
@@ -46,12 +46,12 @@ export default function LoginPage() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="password" className="text-sm font-medium text-gray-700">
+        <label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Password
         </label>
         <input
@@ -61,7 +61,7 @@ export default function LoginPage() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
@@ -75,7 +75,7 @@ export default function LoginPage() {
         {loading ? "Logging in…" : "Log In"}
       </button>
 
-      <p className="text-sm text-gray-600 text-center">
+      <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
         Don&apos;t have an account?{" "}
         <Link
           href="/register"

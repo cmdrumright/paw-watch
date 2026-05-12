@@ -4,6 +4,8 @@ import "leaflet/dist/leaflet.css"
 import L from "leaflet"
 import { useState } from "react"
 import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet"
+import { useTheme } from "@/lib/ThemeContext"
+import { mapTileUrl, MAP_ATTRIBUTION } from "@/lib/theme"
 
 const CLARKSVILLE: [number, number] = [36.5298, -87.3595]
 
@@ -64,6 +66,7 @@ interface Props {
 export default function LocationPickerMap({ onPick, initialPin }: Props) {
   const [pin, setPin] = useState<[number, number] | null>(initialPin ?? null)
   const center = initialPin ?? CLARKSVILLE
+  const { resolved } = useTheme()
 
   async function handleClick(lat: number, lng: number) {
     setPin([lat, lng])
@@ -73,14 +76,17 @@ export default function LocationPickerMap({ onPick, initialPin }: Props) {
 
   return (
     <MapContainer
+      key={resolved}
       center={center}
       zoom={12}
       className="h-full w-full cursor-crosshair"
       scrollWheelZoom
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution={MAP_ATTRIBUTION}
+        url={mapTileUrl(resolved)}
+        tileSize={512}
+        zoomOffset={-1}
       />
       <ClickHandler onPick={handleClick} />
       {pin && <Marker position={pin} icon={PIN} />}

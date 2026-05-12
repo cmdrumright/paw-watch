@@ -11,7 +11,7 @@ const LocationPickerMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-full w-full flex items-center justify-center text-sm text-gray-400 bg-gray-50 rounded-lg">
+      <div className="h-full w-full flex items-center justify-center text-sm text-gray-400 bg-gray-50 dark:bg-gray-900 rounded-lg">
         Loading map…
       </div>
     ),
@@ -65,7 +65,7 @@ function InputField({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-gray-700">
+      <label htmlFor={id} className="text-sm font-medium text-gray-700 dark:text-gray-300">
         {label}
       </label>
       {children}
@@ -75,7 +75,7 @@ function InputField({
 }
 
 const inputClass =
-  "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+  "w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
 
 interface Props {
   title: string
@@ -143,7 +143,7 @@ export default function PostForm({
         <div className="flex flex-col gap-6">
           {/* Post type toggle */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-gray-700">Post Type</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Post Type</span>
             <div className="flex gap-3">
               {(["lost", "found"] as const).map((t) => (
                 <button
@@ -260,7 +260,7 @@ export default function PostForm({
 
           {/* Photos */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Photos <span className="text-gray-400 font-normal">(up to 4, 5 MB each)</span>
             </span>
             {existingPhotos.length > 0 && (
@@ -294,7 +294,7 @@ export default function PostForm({
 
           {/* Labels */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Labels <span className="text-gray-400 font-normal">(select all that apply)</span>
             </span>
             <LabelPicker
@@ -305,7 +305,7 @@ export default function PostForm({
 
           {/* Location picker */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Location <span className="text-gray-400 font-normal">— click the map to drop a pin</span>
             </span>
             <div className="h-56 rounded-lg overflow-hidden border border-gray-300 isolate">
@@ -350,7 +350,7 @@ export default function PostForm({
               type="button"
               onClick={onCancel}
               disabled={submitting}
-              className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
             >
               Cancel
             </button>

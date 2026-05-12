@@ -24,12 +24,12 @@ export default function ListPage() {
     <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-lg font-bold text-gray-900">
+          <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">
             {includeClosed ? "All Posts" : "Active Posts"}
           </h1>
           <div className="flex items-center gap-3">
             {!loading && (
-              <span className="text-sm text-gray-500">{posts.length} results</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">{posts.length} results</span>
             )}
             <label className="flex items-center gap-1.5 cursor-pointer select-none">
               <input
@@ -38,7 +38,7 @@ export default function ListPage() {
                 onChange={(e) => setIncludeClosed(e.target.checked)}
                 className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
               />
-              <span className="text-sm text-gray-600">Show closed</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Show closed</span>
             </label>
           </div>
         </div>

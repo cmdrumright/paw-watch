@@ -12,7 +12,7 @@ import type { PostDetail, Comment } from "@/lib/types"
 const PostDetailMap = dynamic(() => import("@/components/PostDetailMap"), {
   ssr: false,
   loading: () => (
-    <div className="h-full w-full flex items-center justify-center text-sm text-gray-400 bg-gray-50">
+    <div className="h-full w-full flex items-center justify-center text-sm text-gray-400 bg-gray-50 dark:bg-gray-900">
       Loading map…
     </div>
   ),
@@ -29,9 +29,9 @@ function ConfirmModal({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full mx-4">
-        <h2 className="text-base font-semibold text-gray-900 mb-2">Delete this post?</h2>
-        <p className="text-sm text-gray-600 mb-5">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl p-6 max-w-sm w-full mx-4 border border-gray-200 dark:border-gray-700">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">Delete this post?</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-5">
           This can&apos;t be undone. All photos and comments will be permanently removed.
         </p>
         <div className="flex gap-3">
@@ -45,7 +45,7 @@ function ConfirmModal({
           <button
             onClick={onCancel}
             disabled={deleting}
-            className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+            className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
           >
             Cancel
           </button>
@@ -75,14 +75,14 @@ function CommentThread({
       {comments.map((c) => (
         <div key={c.id} className="flex gap-3">
           {/* Avatar */}
-          <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0 flex items-center justify-center text-xs font-semibold text-gray-500 uppercase">
+          <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0 flex items-center justify-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
             {c.author.display_name.charAt(0)}
           </div>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline justify-between gap-2">
               <div className="flex items-center gap-1.5">
-                <span className="text-sm font-medium text-gray-800">{c.author.display_name}</span>
+                <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{c.author.display_name}</span>
                 {c.is_confirmed_sighting && (
                   <span className="text-xs bg-green-100 text-green-700 border border-green-200 rounded-full px-1.5 py-0.5 font-medium">
                     ✓ Confirmed
@@ -109,7 +109,7 @@ function CommentThread({
               </div>
             </div>
 
-            <p className="text-sm text-gray-700 mt-0.5 whitespace-pre-wrap">{c.body}</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300 mt-0.5 whitespace-pre-wrap">{c.body}</p>
 
             {/* Photos */}
             {c.photos.length > 0 && (
@@ -136,7 +136,7 @@ function CommentThread({
                   <button
                     type="button"
                     onClick={() => onConfirm(c.id)}
-                    className="text-xs text-green-600 hover:text-green-800 font-medium transition-colors"
+                    className="text-xs text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-medium transition-colors"
                   >
                     ✓ Confirm Sighting
                   </button>
@@ -232,8 +232,8 @@ export default function PostDetailPage() {
   const admin = isAdmin()
   const typeBadgeClass =
     post.type === "lost"
-      ? "bg-red-100 text-red-700"
-      : "bg-green-100 text-green-700"
+      ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400"
+      : "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400"
   const incidentDate = new Date(post.incident_date + "T00:00:00").toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -260,7 +260,7 @@ export default function PostDetailPage() {
           {/* Back link */}
           <Link
             href="/map"
-            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-5"
+            className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-5"
           >
             ← Back to Map
           </Link>
@@ -280,16 +280,16 @@ export default function PostDetailPage() {
               >
                 {post.type}
               </span>
-              <span className="text-xs text-gray-500 font-medium capitalize">{post.status.replace(/_/g, " ")}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium capitalize">{post.status.replace(/_/g, " ")}</span>
             </div>
-            <span className="text-xs text-gray-400">Posted {createdDate}</span>
+            <span className="text-xs text-gray-400 dark:text-gray-500">Posted {createdDate}</span>
           </div>
 
           {/* Pet name */}
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">{post.pet_name}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">{post.pet_name}</h1>
 
           {/* Species / breed / color */}
-          <p className="text-sm text-gray-600 mb-3">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
             {[post.species, post.breed, post.color].filter(Boolean).join(" · ")}
           </p>
 
@@ -299,7 +299,7 @@ export default function PostDetailPage() {
               {post.labels.map((l) => (
                 <span
                   key={l.id}
-                  className="text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded-full px-2.5 py-0.5"
+                  className="text-xs bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded-full px-2.5 py-0.5"
                 >
                   {l.name}
                 </span>
@@ -325,16 +325,16 @@ export default function PostDetailPage() {
           )}
 
           {/* Description */}
-          <p className="text-sm text-gray-700 whitespace-pre-wrap mb-4">{post.description}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap mb-4">{post.description}</p>
 
           {/* Location + date */}
-          <div className="text-sm text-gray-500 mb-4 flex flex-col gap-1">
+          <div className="text-sm text-gray-500 dark:text-gray-400 mb-4 flex flex-col gap-1">
             <span>📍 {post.location_label}</span>
             <span>📅 {incidentDate}</span>
           </div>
 
           {/* Map */}
-          <div className="h-52 rounded-lg overflow-hidden border border-gray-200 isolate mb-5">
+          <div className="h-52 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 isolate mb-5">
             <PostDetailMap
               postLat={post.location_lat}
               postLng={post.location_lng}
@@ -345,16 +345,16 @@ export default function PostDetailPage() {
           </div>
 
           {/* Posted by + owner actions */}
-          <div className="flex flex-wrap items-center justify-between gap-y-2 border-t border-gray-100 pt-4 mb-3">
-            <span className="text-sm text-gray-500">
-              Posted by <span className="font-medium text-gray-700">{post.owner.display_name}</span>
+          <div className="flex flex-wrap items-center justify-between gap-y-2 border-t border-gray-100 dark:border-gray-800 pt-4 mb-3">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Posted by <span className="font-medium text-gray-700 dark:text-gray-300">{post.owner.display_name}</span>
             </span>
             {(isOwner || admin) && (
               <div className="flex gap-2 shrink-0">
                 {isOwner && (
                   <Link
                     href={`/posts/${post.id}/edit`}
-                    className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     Edit Post
                   </Link>
@@ -362,7 +362,7 @@ export default function PostDetailPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirm(true)}
-                  className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                  className="rounded-lg border border-red-300 dark:border-red-800 px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
                 >
                   Delete
                 </button>
@@ -388,7 +388,7 @@ export default function PostDetailPage() {
                   type="button"
                   onClick={() => handleStatusUpdate("closed")}
                   disabled={updatingStatus}
-                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                  className="rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
                 >
                   Close Post
                 </button>
@@ -398,7 +398,7 @@ export default function PostDetailPage() {
                   type="button"
                   onClick={() => handleStatusUpdate("active")}
                   disabled={updatingStatus}
-                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                  className="rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
                 >
                   Reopen
                 </button>
@@ -407,12 +407,12 @@ export default function PostDetailPage() {
           )}
 
           {/* Comments */}
-          <div className="border-t border-gray-100 pt-4">
-            <p className="text-sm font-semibold text-gray-700 mb-4">
+          <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
               Comments ({comments.length})
             </p>
             {comments.length === 0 ? (
-              <p className="text-sm text-gray-400 mb-6">No comments yet.</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">No comments yet.</p>
             ) : (
               <div className="mb-6">
                 <CommentThread
@@ -425,8 +425,8 @@ export default function PostDetailPage() {
               </div>
             )}
 
-            <div className="border-t border-gray-100 pt-4">
-              <p className="text-sm font-semibold text-gray-700 mb-3">Leave a Comment</p>
+            <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Leave a Comment</p>
               <CommentForm
                 postId={post.id}
                 onCommentAdded={(c) => setComments((prev) => [...prev, c])}
