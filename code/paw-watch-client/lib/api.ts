@@ -1,3 +1,9 @@
+export class ApiError extends Error {
+  constructor(public status: number) {
+    super(String(status))
+  }
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 function getToken(): string | null {
@@ -57,7 +63,7 @@ async function fetchWithAuth(url: string, init: RequestInit): Promise<Response> 
   const refreshed = await attemptRefresh()
   if (!refreshed) {
     forceLogout()
-    throw new Error("401")
+    throw new ApiError(401)
   }
 
   return fetch(url, {
@@ -69,9 +75,9 @@ async function fetchWithAuth(url: string, init: RequestInit): Promise<Response> 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (res.status === 401) {
     forceLogout()
-    throw new Error("401")
+    throw new ApiError(401)
   }
-  if (!res.ok) throw new Error(String(res.status))
+  if (!res.ok) throw new ApiError(res.status)
   if (res.status === 204) return undefined as T
   return res.json()
 }

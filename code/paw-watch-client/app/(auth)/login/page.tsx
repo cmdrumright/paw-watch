@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { loginRequest, setTokens } from "@/lib/auth";
+import { ApiError } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,8 +23,7 @@ export default function LoginPage() {
       setTokens(access, refresh, display_name, user_id, role);
       router.push("/map");
     } catch (err: unknown) {
-      const status = err instanceof Error ? err.message : "";
-      if (status === "401") {
+      if (err instanceof ApiError && err.status === 401) {
         setError("Invalid email or password.");
       } else {
         setError("Something went wrong. Please try again.");

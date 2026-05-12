@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import PostForm, { type PostFormState } from "@/components/PostForm"
-import { apiGet, apiPatchForm } from "@/lib/api"
+import { apiGet, apiPatchForm, ApiError } from "@/lib/api"
 import type { PostDetail } from "@/lib/types"
 
 export default function EditPostPage() {
@@ -41,11 +41,11 @@ export default function EditPostPage() {
       await apiPatchForm(`posts/${id}`, body)
       router.push(`/posts/${id}`)
     } catch (err) {
-      if (err instanceof Error && err.message === "403") {
+      if (err instanceof ApiError && err.status === 403) {
         router.push(`/posts/${id}`)
         return
       }
-      if (err instanceof Error && err.message === "400") {
+      if (err instanceof ApiError && err.status === 400) {
         return { general: ["Please check your entries and try again."] }
       }
       return { general: ["Something went wrong. Please try again."] }

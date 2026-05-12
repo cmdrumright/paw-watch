@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import PostForm, { type PostFormState } from "@/components/PostForm"
-import { apiPostForm } from "@/lib/api"
+import { apiPostForm, ApiError } from "@/lib/api"
 
 export default function NewPostPage() {
   const router = useRouter()
@@ -26,7 +26,7 @@ export default function NewPostPage() {
       const post = await apiPostForm<{ id: number }>("posts", body)
       router.push(`/posts/${post.id}`)
     } catch (err) {
-      if (err instanceof Error && err.message === "400") {
+      if (err instanceof ApiError && err.status === 400) {
         return { general: ["Please check your entries and try again."] }
       }
       return { general: ["Something went wrong. Please try again."] }
