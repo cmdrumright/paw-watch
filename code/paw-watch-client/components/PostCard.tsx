@@ -41,7 +41,7 @@ export default function PostCard({ post }: { post: PostSummary }) {
           <div className="flex items-center gap-1.5 flex-wrap">
             <span
               className={`text-xs font-bold uppercase px-1.5 py-0.5 rounded ${
-                isLost ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+                isLost ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400" : "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400"
               }`}
             >
               {post.type}
@@ -73,7 +73,7 @@ export default function PostCard({ post }: { post: PostSummary }) {
             {post.labels.map((label) => (
               <span
                 key={label.id}
-                className="text-xs px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100"
+                className="text-xs px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800"
               >
                 {label.name}
               </span>
