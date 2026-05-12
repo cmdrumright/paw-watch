@@ -20,7 +20,7 @@ export type Theme = "system" | "light" | "dark"
 
 const STORAGE_KEY = "theme"
 
-function getSystemResolved(): "light" | "dark" {
+export function getSystemResolved(): "light" | "dark" {
   if (typeof window === "undefined") return "light"
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
 }

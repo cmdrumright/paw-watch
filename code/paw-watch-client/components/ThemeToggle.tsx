@@ -1,6 +1,7 @@
 "use client"
 
-import { useTheme, type Theme } from "@/lib/theme"
+import { useTheme } from "@/lib/ThemeContext"
+import type { Theme } from "@/lib/theme"
 
 const OPTIONS: { value: Theme; label: string }[] = [
   { value: "system", label: "System" },

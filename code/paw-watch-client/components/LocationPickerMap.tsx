@@ -4,7 +4,8 @@ import "leaflet/dist/leaflet.css"
 import L from "leaflet"
 import { useState } from "react"
 import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet"
-import { useTheme, mapTileUrl, MAP_ATTRIBUTION } from "@/lib/theme"
+import { useTheme } from "@/lib/ThemeContext"
+import { mapTileUrl, MAP_ATTRIBUTION } from "@/lib/theme"
 
 const CLARKSVILLE: [number, number] = [36.5298, -87.3595]
 
@@ -75,13 +76,13 @@ export default function LocationPickerMap({ onPick, initialPin }: Props) {
 
   return (
     <MapContainer
+      key={resolved}
       center={center}
       zoom={12}
       className="h-full w-full cursor-crosshair"
       scrollWheelZoom
     >
       <TileLayer
-        key={resolved}
         attribution={MAP_ATTRIBUTION}
         url={mapTileUrl(resolved)}
         tileSize={512}

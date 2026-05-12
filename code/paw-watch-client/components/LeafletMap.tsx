@@ -5,7 +5,8 @@ import L from "leaflet"
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet"
 import Link from "next/link"
 import type { PostSummary } from "@/lib/types"
-import { useTheme, mapTileUrl, MAP_ATTRIBUTION } from "@/lib/theme"
+import { useTheme } from "@/lib/ThemeContext"
+import { mapTileUrl, MAP_ATTRIBUTION } from "@/lib/theme"
 
 export type { PostSummary }
 
@@ -45,13 +46,13 @@ export default function LeafletMap({ posts }: Props) {
   return (
     <div className="relative h-full w-full">
       <MapContainer
+        key={resolved}
         center={CLARKSVILLE}
         zoom={12}
         className="h-full w-full"
         scrollWheelZoom
       >
         <TileLayer
-          key={resolved}
           attribution={MAP_ATTRIBUTION}
           url={mapTileUrl(resolved)}
           tileSize={512}
