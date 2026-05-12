@@ -136,7 +136,7 @@ function CommentThread({
                   <button
                     type="button"
                     onClick={() => onConfirm(c.id)}
-                    className="text-xs text-green-600 hover:text-green-800 font-medium transition-colors"
+                    className="text-xs text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-medium transition-colors"
                   >
                     ✓ Confirm Sighting
                   </button>
@@ -362,7 +362,7 @@ export default function PostDetailPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirm(true)}
-                  className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                  className="rounded-lg border border-red-300 dark:border-red-800 px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
                 >
                   Delete
                 </button>
