@@ -232,8 +232,8 @@ export default function PostDetailPage() {
   const admin = isAdmin()
   const typeBadgeClass =
     post.type === "lost"
-      ? "bg-red-100 text-red-700"
-      : "bg-green-100 text-green-700"
+      ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400"
+      : "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400"
   const incidentDate = new Date(post.incident_date + "T00:00:00").toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -299,7 +299,7 @@ export default function PostDetailPage() {
               {post.labels.map((l) => (
                 <span
                   key={l.id}
-                  className="text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded-full px-2.5 py-0.5"
+                  className="text-xs bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded-full px-2.5 py-0.5"
                 >
                   {l.name}
                 </span>
