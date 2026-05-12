@@ -7,6 +7,20 @@ from rest_framework.viewsets import ViewSet
 from api.models import Post, Photo, PostPhoto, Label, PostLabel
 from api.views.label import LabelSerializer
 
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+MAX_PHOTO_BYTES = 5 * 1024 * 1024  # 5 MB
+
+
+def validate_photo_files(files):
+    """Return a list of error strings for files that fail type or size checks."""
+    errors = []
+    for f in files:
+        if f.content_type not in ALLOWED_IMAGE_TYPES:
+            errors.append(f'"{f.name}" is not an accepted image type (jpeg, png, gif, webp).')
+        elif f.size > MAX_PHOTO_BYTES:
+            errors.append(f'"{f.name}" exceeds the 5 MB size limit.')
+    return errors
+
 
 class PostListSerializer(serializers.ModelSerializer):
     """Serializer for the post list endpoint — lightweight fields only."""
@@ -199,6 +213,10 @@ class PostViewSet(ViewSet):
         if len(photo_files) > 4:
             return Response({"photos": ["A post may have at most 4 photos."]}, status=status.HTTP_400_BAD_REQUEST)
 
+        photo_errors = validate_photo_files(photo_files)
+        if photo_errors:
+            return Response({"photos": photo_errors}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = PostCreateSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -292,6 +310,10 @@ class PostViewSet(ViewSet):
         # Handle new photo uploads
         new_files = request.FILES.getlist("photos")
         if new_files:
+            photo_errors = validate_photo_files(new_files)
+            if photo_errors:
+                return Response({"photos": photo_errors}, status=status.HTTP_400_BAD_REQUEST)
+
             current_count = post.post_photos.count()
             if current_count + len(new_files) > 4:
                 return Response(
