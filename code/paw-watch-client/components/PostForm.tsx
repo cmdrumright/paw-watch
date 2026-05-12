@@ -11,7 +11,7 @@ const LocationPickerMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-full w-full flex items-center justify-center text-sm text-gray-400 bg-gray-50 rounded-lg">
+      <div className="h-full w-full flex items-center justify-center text-sm text-gray-400 bg-gray-50 dark:bg-gray-900 rounded-lg">
         Loading map…
       </div>
     ),

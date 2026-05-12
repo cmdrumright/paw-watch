@@ -9,7 +9,7 @@ import type { PostSummary } from "@/lib/types"
 const LeafletMap = dynamic(() => import("@/components/LeafletMap"), {
   ssr: false,
   loading: () => (
-    <div className="flex-1 flex items-center justify-center text-sm text-gray-400">
+    <div className="flex-1 flex items-center justify-center text-sm text-gray-400 bg-white dark:bg-gray-950">
       Loading map…
     </div>
   ),

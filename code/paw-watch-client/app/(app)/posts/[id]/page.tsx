@@ -12,7 +12,7 @@ import type { PostDetail, Comment } from "@/lib/types"
 const PostDetailMap = dynamic(() => import("@/components/PostDetailMap"), {
   ssr: false,
   loading: () => (
-    <div className="h-full w-full flex items-center justify-center text-sm text-gray-400 bg-gray-50">
+    <div className="h-full w-full flex items-center justify-center text-sm text-gray-400 bg-gray-50 dark:bg-gray-900">
       Loading map…
     </div>
   ),

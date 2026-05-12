@@ -28,6 +28,11 @@ html {
   @apply text-gray-900 dark:text-gray-100;
 }
 
+/* Leaflet dark mode tile-loading background */
+.dark .leaflet-container {
+  background: #0f172a;
+}
+
 /* Strip Leaflet popup chrome so our card styles take over */
 .leaflet-popup-content-wrapper {
   padding: 0;
