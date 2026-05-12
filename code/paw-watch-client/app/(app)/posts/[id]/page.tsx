@@ -29,6 +29,8 @@ export default function PostDetailPage() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [updatingStatus, setUpdatingStatus] = useState(false)
+  const [statusError, setStatusError] = useState("")
+  const [commentError, setCommentError] = useState("")
 
   useEffect(() => {
     apiGet<PostDetail>(`posts/${id}`)
@@ -52,33 +54,36 @@ export default function PostDetailPage() {
 
   async function handleStatusUpdate(newStatus: string) {
     if (!post) return
+    setStatusError("")
     setUpdatingStatus(true)
     try {
       const updated = await apiPatch<PostDetail>(`posts/${id}/status`, { status: newStatus })
       setPost(updated)
     } catch {
-      // silently ignore
+      setStatusError("Failed to update status. Please try again.")
     } finally {
       setUpdatingStatus(false)
     }
   }
 
   async function handleConfirmSighting(commentId: number) {
+    setCommentError("")
     try {
       const updated = await apiPatch<Comment>(`comments/${commentId}/confirm`, {})
       setComments((prev) => prev.map((c) => (c.id === commentId ? updated : c)))
       setPost((prev) => prev ? { ...prev, status: "sighting_reported" } : prev)
     } catch {
-      // silently ignore
+      setCommentError("Failed to confirm sighting. Please try again.")
     }
   }
 
   async function handleDeleteComment(commentId: number) {
+    setCommentError("")
     try {
       await apiDelete(`comments/${commentId}`)
       setComments((prev) => prev.filter((c) => c.id !== commentId))
     } catch {
-      // silently ignore — comment already gone or permission denied
+      setCommentError("Failed to delete comment. Please try again.")
     }
   }
 
@@ -242,7 +247,8 @@ export default function PostDetailPage() {
 
           {/* Status action buttons (owner only) */}
           {isOwner && (
-            <div className="flex flex-wrap gap-2 mb-6">
+            <div className="flex flex-col gap-2 mb-6">
+            <div className="flex flex-wrap gap-2">
               {post.status !== "reunited" && (
                 <button
                   type="button"
@@ -274,6 +280,8 @@ export default function PostDetailPage() {
                 </button>
               )}
             </div>
+            {statusError && <p className="text-xs text-red-600">{statusError}</p>}
+            </div>
           )}
 
           {/* Comments */}
@@ -296,6 +304,7 @@ export default function PostDetailPage() {
             )}
 
             <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+              {commentError && <p className="text-xs text-red-600 mb-3">{commentError}</p>}
               <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Leave a Comment</p>
               <CommentForm
                 postId={post.id}
