@@ -70,13 +70,13 @@ export default function LeafletMap({ posts }: Props) {
                   <span
                     className={`text-xs font-bold uppercase px-1.5 py-0.5 rounded ${
                       post.type === "lost"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-green-100 text-green-700"
+                        ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400"
+                        : "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400"
                     }`}
                   >
                     {post.type}
                   </span>
-                  <span className="text-xs text-gray-700">{STATUS_LABELS[post.status] ?? post.status}</span>
+                  <span className="text-xs text-gray-700 dark:text-gray-300">{STATUS_LABELS[post.status] ?? post.status}</span>
                 </div>
 
                 {post.first_photo_url && (
@@ -87,8 +87,8 @@ export default function LeafletMap({ posts }: Props) {
                   />
                 )}
 
-                <p className="font-semibold text-gray-900">{post.pet_name}</p>
-                <p className="text-gray-700 text-xs">
+                <p className="font-semibold text-gray-900 dark:text-gray-100">{post.pet_name}</p>
+                <p className="text-gray-700 dark:text-gray-300 text-xs">
                   {post.species}{post.breed ? ` · ${post.breed}` : ""}
                 </p>
 
@@ -97,7 +97,7 @@ export default function LeafletMap({ posts }: Props) {
                     {post.labels.map((label) => (
                       <span
                         key={label.id}
-                        className="text-xs px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100"
+                        className="text-xs px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800"
                       >
                         {label.name}
                       </span>

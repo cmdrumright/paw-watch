@@ -33,6 +33,15 @@ html {
   background: #0f172a;
 }
 
+/* Dark mode popup wrapper */
+.dark .leaflet-popup-content-wrapper {
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+.dark .leaflet-popup-tip {
+  display: none;
+}
+
 /* Strip Leaflet popup chrome so our card styles take over */
 .leaflet-popup-content-wrapper {
   padding: 0;
