@@ -135,14 +135,6 @@ Open [http://localhost:3000](http://localhost:3000). The API must be running for
 
 ---
 
-### Running both together
+## Deployment
 
-Start each in a separate terminal:
-
-```bash
-# Terminal 1 — API
-cd code/paw-watch-api && pipenv run python manage.py runserver
-
-# Terminal 2 — Client
-cd code/paw-watch-client && npm run dev
-```
+Check the [ops](ops) readme for instructions on deploying to Railway.
