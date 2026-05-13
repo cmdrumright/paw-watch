@@ -45,7 +45,7 @@ export default function LabelPicker({ selected, onChange }: Props) {
               onChange={() => toggle(label.id)}
               className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
             />
-            <span className="text-sm text-gray-700">{label.name}</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">{label.name}</span>
           </label>
         )
       })}

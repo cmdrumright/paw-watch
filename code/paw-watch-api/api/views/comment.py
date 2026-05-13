@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
 from api.models import Comment, CommentPhoto, Photo, Post
-from api.views.post import PhotoSerializer
+from api.views.post import PhotoSerializer, validate_photo_files
 
 
 class CommentAuthorSerializer(serializers.Serializer):
@@ -73,6 +73,10 @@ class CommentViewSet(ViewSet):
                 {"photos": ["A comment may have at most 2 photos."]},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        photo_errors = validate_photo_files(photo_files)
+        if photo_errors:
+            return Response({"photos": photo_errors}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = CommentCreateSerializer(data=request.data)
         if not serializer.is_valid():

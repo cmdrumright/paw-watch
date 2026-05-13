@@ -21,9 +21,9 @@ export default function MyPostsPage() {
     <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-lg font-bold text-gray-900">My Posts</h1>
+          <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">My Posts</h1>
           {!loading && (
-            <span className="text-sm text-gray-500">{posts.length} posts</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">{posts.length} posts</span>
           )}
         </div>
 
@@ -31,7 +31,7 @@ export default function MyPostsPage() {
           <div className="flex justify-center py-16 text-gray-400 text-sm">Loading…</div>
         ) : posts.length === 0 ? (
           <div className="flex flex-col items-center py-16 gap-3">
-            <p className="text-gray-400 text-sm">You haven&apos;t posted anything yet.</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm">You haven&apos;t posted anything yet.</p>
             <Link
               href="/posts/new"
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
